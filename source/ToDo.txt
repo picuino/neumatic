@@ -1,0 +1,90 @@
+TO-DO
+=====
+* Añadir simulación y edición del nombre a la válvula con rodillo y al rodillo.
+
+* Añadir color rojo de presión a los cilindros.
+
+* Cargar un archivo a partir del nombre en la url.
+
+* Dividir el código en archivos separados.
+
+* Añadir internacionalización para traducir elementos de la app.
+
+* Seleccionar conjunto de componentes y mover la selección.
+
+
+21/12/2025
+----------
+* Añadido nombre del programa en el canvas.
+
+* Añadida visualización de la posición x, y del ratón en el canvas.
+
+* Añadida simulación de válvulas AND y OR.
+
+* Corregido error de formato de visualización en textos y flechas.
+
+
+20/12/2025
+----------
+* Añadir roldana con nombre para el pistón.
+
+* Añadir simulación basada en nodos con presión y volumen.
+
+
+19/12/2025
+----------
+* Añadir válvula OR
+
+* Añadir válvula AND
+
+* Añadir pistón de doble efecto
+
+* Añadir válvula 3/2 con roldana
+
+* Añadir válvula 5/2 manual
+
+* Añadir válvula 5/2 con pilotaje neumático
+
+* Añadir cabecera al archivo de esquema guardado en disco.
+
+* Eliminar el código id de los componentes.
+
+* Grid de la mitad de pixel para los textos
+
+* Guardar los esquemas como imagen PNG.
+
+* Mejorar aspecto de la punta de la flecha.
+
+* Mejorar editar texto. Que aparezca el contenido de texto en la ventana.
+
+* Mejorar dibujar texto. Que pregunte un diálogo por el contenido del texto.
+
+
+18/12/2025
+----------
+
+* Añadido símbolo de válvula estranguladora unidireccional.
+
+* Aumentar la resolución del canvas al doble.
+
+* Añadir Guardar y Recuperar esquemas en archivos JSON (con timestamp y hash).
+
+* Añadir función hash no criptográfica.
+
+* Añadir Etiquetas de texto. Eliminar las etiquetas vacías.
+
+* Unificar componentes y tuberías.
+
+* Añadir timestamp a los componentes.
+
+* Mover flechas de las válvulas.
+
+* Borrar tuberías con inicio igual a fin.
+
+
+
+17/12/2025
+----------
+* Eliminar objeto cuando se esté editando y pulsemos Delete
+  o cuando se clique en modo delete.
+

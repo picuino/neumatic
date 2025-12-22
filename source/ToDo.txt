@@ -1,20 +1,39 @@
 TO-DO
 =====
-* Añadir simulación y edición del nombre a la válvula con rodillo y al rodillo.
+* Ver posición del cursor en todas las ocasiones.
 
-* Añadir color rojo de presión a los cilindros.
+* Corregir el bug que hace que el cilindro1 se vea en negro al moverlo.
+
+* Añadir reset de la simulación para que todo vuelva al estado inicial.
+
+* Añadir simulación por pasos.
+
+* Añadir editar el esquema mientras simula.
+
+* Añadir visualizar flujo de aire en las tuberías.
+
+* Añadir opción de esquemas de ejemplo.
+
+* Añadir opción para borrar los timeStamps a cero.
 
 * Cargar un archivo a partir del nombre en la url.
-
-* Dividir el código en archivos separados.
 
 * Añadir internacionalización para traducir elementos de la app.
 
 * Seleccionar conjunto de componentes y mover la selección.
 
 
+22/12/2025
+----------
+* Añadir variable global Versión que se utilice en todo el código.
+
+
 21/12/2025
 ----------
+* Añadir simulación y edición del nombre a la válvula con rodillo y al rodillo.
+
+* Añadir color rojo de presión a los cilindros.
+
 * Añadido nombre del programa en el canvas.
 
 * Añadida visualización de la posición x, y del ratón en el canvas.

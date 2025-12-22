@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="keywords" content="Simulador Neumática Online">
+  <meta name="keywords" content="Online Pneumatic Simulator Schematic Picuino">
 
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="description" content="Simulador Neumático Online - Picuino">
-  <title>Simulador Neumático - Picuino</title>
+  <meta name="description" content="Picuino Pneumatic Simulator">
+  <title data-i18n="title">Pneumatic Simulator - Picuino</title>
 
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
@@ -22,7 +22,6 @@
     font-size: 14px;
   }
 
-  /* Barra superior */
   .menu {
     position: fixed;
     top: 0;
@@ -40,7 +39,6 @@
     display: flex;
   }
 
-  /* Elemento principal */
   .menu-item {
     position: relative;
   }
@@ -50,6 +48,7 @@
     cursor: pointer;
     user-select: none;
     font-weight: bold;
+    display: flex;
   }
 
   /* Submenú */
@@ -62,7 +61,8 @@
     top: 100%;
     left: 0;
 
-    min-width: 120px;
+    width: fit-content;
+    white-space: nowrap;
     background: white;
     border: 1px solid #ccc;
 
@@ -78,11 +78,6 @@
     left: 100%;
   }
 
-  .has-submenu > a::after {
-    content: ">";
-    float: right;
-  }
-
   .submenu li a {
     white-space: nowrap;
     display: block;
@@ -93,6 +88,19 @@
 
   .submenu li a:hover {
     background: #f0f0f0;
+  }
+
+  .submenu li.has-submenu > a {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+  }
+
+  .has-submenu > a::after {
+    content: ">";
+    margin-left: auto;
+    padding-left: 8px;
   }
 
   .submenu.activo {
@@ -128,7 +136,6 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
   }
   </style>
-  <script async type="module" crossorigin src="./neumatic.js"></script>
 </head>
 
 <body>
@@ -137,73 +144,90 @@
     <ul class="menu-principal">
 
       <li class="menu-item">
-        <div class="menu-titulo">Archivo</div>
+        <div class="menu-titulo" data-i18n="fileMenu">File</div>
         <ul class="submenu">
-          <li><a href="#" data-action="aNew">Nuevo Esquema</a></li>
-          <li><a href="#" data-action="aOpen">Abrir Esquema</a></li>
-          <li><a href="#" data-action="aSave">Guardar Esquema</a></li>
-          <li><a href="#" data-action="aSavePNG">Guardar Imagen</a></li>
-          <li><a href="#" data-action="about">Sobre...</a></li>
+          <li><a href="#" data-action="fNew"   data-i18n="fNew">New Schematic</a></li>
+          <li><a href="#" data-action="fOpen"  data-i18n="fOpen">Open Schematic</a></li>
+          
+          <li class="has-submenu">
+            <a href="#" data-i18n="fSave">Save Schematic</a>
+            <ul class="submenu">
+              <li><a href="#" data-action="fSaveStudent" data-i18n="fSaveStudent">Student</a></li>
+              <li><a href="#" data-action="fSaveTeacher" data-i18n="fSaveTeacher">Teacher</a></li>
+            </ul>
+          </li>
+          
+          <li><a href="#" data-action="fSavePNG" data-i18n="fSavePNG">Save Image</a></li>
+
+          <li class="has-submenu">
+            <a href="#" data-i18n="languageMenu">Language</a>
+            <ul class="submenu">
+              <li><a href="#" data-action="enLang" data-i18n="enLang">English</a></li>
+              <li><a href="#" data-action="esLang" data-i18n="esLang">Spanish</a></li>
+            </ul>
+          </li>
+          
+          <li><a href="#" data-action="fAbout" data-i18n="fAbout">About...</a></li>
         </ul>
       </li>
 
       <li class="menu-item">
-        <div class="menu-titulo">Dibujar</div>
+        <div class="menu-titulo" data-i18n="drawMenu">Draw</div>
         <ul class="submenu">
 
           <li class="has-submenu">
-            <a href="#">Válvulas</a>
+            <a href="#" data-i18n="valvesMenu">Valves</a>
             <ul class="submenu">
-              <li><a href="#" data-action="cValve22m">Válvula 2/2 manual</a></li>
-              <li><a href="#" data-action="cValve32m">Válvula 3/2 manual</a></li>
-              <li><a href="#" data-action="cValve32r">Válvula 3/2 con rodillo</a></li>
-              <li><a href="#" data-action="cRoller">Rodillo de válvula</a></li>
-              <li><a href="#" data-action="cValve52m">Válvula 5/2 manual</a></li>
-              <li><a href="#" data-action="cValve52p">Válvula 5/2 pilotada</a></li>
+              <li><a href="#" data-action="cValve22m" data-i18n="cValve22m">Valve 2/2 manual</a></li>
+              <li><a href="#" data-action="cValve32m" data-i18n="cValve32m">Valve 3/2 manual</a></li>
+              <li><a href="#" data-action="cValve32r" data-i18n="cValve32r">Valve 3/2 with roller</a></li>
+              <li><a href="#" data-action="cRoller"   data-i18n="cRoller">Roller of valve</a></li>
+              <li><a href="#" data-action="cValve52m" data-i18n="cValve52m">Valve 5/2 manual</a></li>
+              <li><a href="#" data-action="cValve52p" data-i18n="cValve52p">Valve 5/2 pneu. pilot</a></li>
             </ul>
           </li>
 
           <li class="has-submenu">
-            <a href="#">Válvulas Aux.</a>
+            <a href="#" data-i18n="auxValvesMenu">Aux. valves</a>
             <ul class="submenu">
-              <li><a href="#" data-action="cValveNret">Válvula antirretorno</a></li>
-              <li><a href="#" data-action="cValveFlow">Válvula estranguladora</a></li>
-              <li><a href="#" data-action="cValveOr">Válvula selectora (OR)</a></li>
-              <li><a href="#" data-action="cValveAnd">Válvula de simultaneidad (AND)</a></li>
+              <li><a href="#" data-action="cValveNret" data-i18n="cValveNret">Non-return valve</a></li>
+              <li><a href="#" data-action="cValveFlow" data-i18n="cValveFlow">Choke valve</a></li>
+              <li><a href="#" data-action="cValveOr"   data-i18n="cValveOr">Or valve</a></li>
+              <li><a href="#" data-action="cValveAnd"  data-i18n="cValveAnd">And valve</a></li>
             </ul>
           </li>
 
           <li class="has-submenu">
-            <a href="#">Cilindros</a>
+            <a href="#" data-i18n="cylinderMenu">Cylinder</a>
             <ul class="submenu">
-              <li><a href="#" data-action="cCylinder1">De simple efecto</a></li>
-              <li><a href="#" data-action="cCylinder2">De doble efecto</a></li>
+              <li><a href="#" data-action="cCylinder1" data-i18n="cCylinder1">Single-acting</a></li>
+              <li><a href="#" data-action="cCylinder2" data-i18n="cCylinder2">Double-acting</a></li>
             </ul>
           </li>
 
-          <li><a href="#" data-action="cPress">Presión</a></li>
-          <li><a href="#" data-action="cPipe">Tubería</a></li>
-          <li><a href="#" data-action="cEscape">Escape</a></li>
-          <li><a href="#" data-action="cText">Texto</a></li>
+          <li><a href="#" data-action="cPress"  data-i18n="cPress">Compressor</a></li>
+          <li><a href="#" data-action="cPipe"   data-i18n="cPipe">Pipe</a></li>
+          <li><a href="#" data-action="cEscape" data-i18n="cEscape">Escape</a></li>
+          <li><a href="#" data-action="cText"   data-i18n="cText">Text</a></li>
 
         </ul>
       </li>
 
       <li class="menu-item">
-        <div class="menu-titulo">Editar</div>
+        <div class="menu-titulo" data-i18n="editMenu">Edit</div>
         <ul class="submenu">
-          <li><a href="#" data-action="eDelete">Borrar</a></li>
-          <li><a href="#" data-action="eMove">Mover</a></li>
-          <li><a href="#" data-action="eEdit">Modificar</a></li>
+          <li><a href="#" data-action="eDelete" data-i18n="eDelete">Delete</a></li>
+          <li><a href="#" data-action="eMove"   data-i18n="eMove">Move</a></li>
+          <li><a href="#" data-action="eEdit"   data-i18n="eModify">Modify</a></li>
         </ul>
       </li>
 
       <li class="menu-item">
-        <div class="menu-titulo">Simular</div>
+        <div class="menu-titulo" data-i18n="simulateMenu">Simulate</div>
         <ul class="submenu">
-          <li><a href="#" data-action="sInit">Iniciar</a></li>
-          <li><a href="#" data-action="sStop">Detener</a></li>
-          <li><a href="#" data-action="sContinue">Continuar</a></li>
+          <li><a href="#" data-action="sInit"     data-i18n="sInit">Init</a></li>
+          <li><a href="#" data-action="sStop"     data-i18n="sStop">Stop</a></li>
+          <li><a href="#" data-action="sContinue" data-i18n="sContinue">Continue</a></li>
         </ul>
       </li>
 
@@ -227,6 +251,8 @@
     <div>
     <h2>Picuino Pneumatic Simulator</h2>
     <p><strong>Copyright © 2025 Carlos Félix Pardo Martín.</strong></p>
+    <p><strong>Email: </strong><span style="unicode-bidi:bidi-override; direction: rtl;">moc.oniu<span style="display:none">n</span>cip&#64;sol<span style="display:none">novale</span>rac<span></p>
+    <p><strong>GitHub: </strong><a href="https://github.com/picuino/neumatic/" target="_blank">Neumatic Simulator source code</a></p>
     <p>
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -242,7 +268,7 @@
     along with this program. If not, see
     <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">
     www.gnu.org/licenses/gpl-3.0.html</a>.</p>
-    <button id="closeBtn">Cerrar</button>
+    <button id="closeBtn" data-i18n="closeBtn">Close window</button>
     </div>
   </dialog>
 
@@ -269,7 +295,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '1.1';
+const programVersion = '1.2';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -291,6 +317,94 @@ let pipeMove = null;
 let initPos = null;
 let endPos = null;
 let running = false;
+let globalLang = null;
+
+/*************************************************************************/
+
+const translations = {
+
+  en: {
+    title: 'Pneumatic Simulator - Picuino',
+	closeBtn: 'Close window',
+    fileMenu: 'File',
+    fNew: 'New Schematic',
+    fOpen: 'Open Schematic',
+    fSave: 'Save Schematic',
+    fSaveStudent: 'Student',
+    fSaveTeacher: 'Teacher',
+    fSavePNG: 'Save Image',
+    fAbout: 'About...',
+    drawMenu: 'Draw',
+    valvesMenu: 'Valves',
+    cValve22m: 'Valve 2/2 manual',
+    cValve32m: 'Valve 3/2 manual',
+    cValve32r: 'Valve 3/2 with roller',
+    cRoller: 'Roller of valve',
+    cValve52m: 'Valve 5/2 manual',
+    cValve52p: 'Valve 5/2 pneu. pilot',
+    auxValvesMenu: 'Aux. valves',
+    cValveNret: 'Non-return valve',
+    cValveFlow: 'Choke valve',
+    cValveOr: 'OR valve',
+    cValveAnd: 'AND valve',
+    cylinderMenu: 'Cylinders',
+    cCylinder1: 'Single-acting',
+    cCylinder2: 'Double-acting',
+    cPress: 'Compressor',
+    cPipe: 'Pipe',
+    cEscape: 'Escape',
+    cText: 'Text',
+    editMenu: 'Edit',
+    eDelete: 'Delete',
+    eMove: 'Move',
+    eModify: 'Modify',
+    simulateMenu: 'Simulate',    
+    sInit: 'Init',
+    sStop: 'Stop',
+    sContinue: 'Continue',
+  },
+
+  es: {
+    title: 'Simulador Neumático - Picuino',
+	closeBtn: 'Cerrar ventana',
+    fileMenu: 'Archivo',
+    fNew: 'Nuevo Esquema',
+    fOpen: 'Abrir Esquema',
+    fSave: 'Guardar Esquema',
+    fSaveStudent: 'Alumno',
+    fSaveTeacher: 'Profesor',
+    fSavePNG: 'Guardar Imagen',
+    fAbout: 'Sobre...',
+    drawMenu: 'Dibujar',
+    valvesMenu: 'Válvulas',
+    cValve22m: 'Válvula 2/2 manual',
+    cValve32m: 'Válvula 3/2 manual',
+    cValve32r: 'Válvula 3/2 con rodillo',
+    cRoller: 'Rodillo de válvula',
+    cValve52m: 'Válvula 5/2 manual',
+    cValve52p: 'Válvula 5/2 pilotada neum.',
+    auxValvesMenu: 'Válvulas aux.',
+    cValveNret: 'Válvula antirretorno',
+    cValveFlow: 'Válvula estranguladora',
+    cValveOr: 'Válvula selectora (OR)',
+    cValveAnd: 'Válvula simultaneidad (AND)',
+    cylinderMenu: 'Cilindros',
+    cCylinder1: 'Simple efecto',
+    cCylinder2: 'Doble efecto',
+    cPress: 'Compresor',
+    cPipe: 'Tubería',
+    cEscape: 'Escape',
+    cText: 'Texto',
+    editMenu: 'Editar',
+    eDelete: 'Borrar',
+    eMove: 'Mover',
+    eModify: 'Modificar',   
+    simulateMenu: 'Simular',
+    sInit: 'Iniciar',
+    sStop: 'Detener',
+    sContinue: 'Continuar',
+  }
+}
 
 
 /*************************************************************************/
@@ -336,11 +450,14 @@ document.addEventListener("click", (e) => {
   const action = item.dataset.action;
 
   const actions = {
-    aNew: () => { resetEditor() },
-    aOpen: () => { openSchema(); },
-    aSave: () => { saveSchema(); },
-    aSavePNG: () => { savePNG(); },
-    about: () => { aboutWindowShow(); },
+    fNew: () => { resetEditor() },
+    fOpen: () => { openSchema(); },
+    fSaveStudent: () => { saveSchema('student'); },
+    fSaveTeacher: () => { saveSchema('teacher'); },
+    fSavePNG: () => { savePNG(); },
+    enLang: () => { enLang(); },
+    esLang: () => { esLang(); },
+    fAbout: () => { aboutWindowShow(); },
 
     cPipe: () =>      { simulationStop(); drawMode='component'; componentType='Pipe'; },
     cPress: () =>     { simulationStop(); drawMode='component'; componentType='Compressor'; },
@@ -678,7 +795,8 @@ class ValveNret extends ComponentBase {
     super(pos);
     this.type = 'ValveNret';
     this.conductance = conductanceBase;
-    this.minPressure = 0.1; // bar
+    this.minPressure = 0.02; // bar
+    this.active = false;
   }
 
   vias() {
@@ -696,6 +814,10 @@ class ValveNret extends ComponentBase {
       const q = dpress*this.conductance*dt;
       node1.addAir(-q);
       node2.addAir(q);
+      this.active = true;
+    }
+    else {
+      this.active = false;
     }
   }
 
@@ -720,11 +842,11 @@ class ValveNret extends ComponentBase {
     ctx.stroke();
 
     ctx.beginPath();
-    if (true) {
-      ctx.arc(this.x,this.y-25, 6, 0, Math.PI*2);
+    if (this.active === false) {
+      ctx.arc(this.x,this.y-26, 6, 0, Math.PI*2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(this.x, this.y-31);
+      ctx.moveTo(this.x, this.y-32);
       ctx.lineTo(this.x, this.y-40);
       }
     else {
@@ -1922,8 +2044,6 @@ class UIController {
       if (event.key === "Delete") { this._delete(); }
       this.renderer.draw();
     });
-
-    this._resizeCanvas();
   }
 
   _delete() {
@@ -2229,6 +2349,21 @@ async function openSchema() {
 }
 
 
+async function openFile(filename) {
+  try {
+    const answer = await fetch(filename);
+    
+    if (!answer.ok) {
+	  throw new Error("Could not read the file");
+	}
+    const data = await answer.text();
+    loadSchema(data);
+    engine.createNodes();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
 function savePNG() {
   renderer.draw();
 
@@ -2244,14 +2379,18 @@ function savePNG() {
 }
 
 
-function saveSchema() {
+function saveSchema(rol) {
   let schematic = [{
     type: 'Schematic',
-    program: 'Pneumatic Simulator Picuino',
+    program: 'Picuino Pneumatic Simulator',
     version: programVersion,
   }];
   for (const comp of engine.components) {
-    schematic.push(comp.serialize());
+    let data = comp.serialize();
+    if (rol === 'teacher') {
+      data.stamp = '1000000000';
+    }
+    schematic.push(data);
   }
   schematicJSON = JSON.stringify(schematic);
   const hash = cyrb53(schematicJSON);
@@ -2318,6 +2457,40 @@ let animationID = null;
 let simulationTime = performance.now();
 let accumulator = 0;
 
+
+/************************ LANGUAGES ************************/
+
+function setLanguage(lang) {
+  if (! ['en', 'es'].includes(lang)) {
+    lang = 'en';
+  }
+  globalLang = lang;
+  const elements = document.querySelectorAll("[data-i18n]");
+  elements.forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const translation = translations[lang][key];
+    if (translation) {
+      el.textContent = translation;
+    }
+  });
+}
+
+function enLang() {
+  globalLang = 'en';
+  setLanguage('en');
+}
+
+function esLang() {
+  globalLang = 'es';
+  setLanguage('es');
+}
+
+function navigatorLang() {
+  const lang = (navigator.language || navigator.userLanguage).substring(0, 2);
+  setLanguage(lang)
+}
+  
+
 /************************ MAIN ************************/
 
 const aboutWindow = document.getElementById('aboutWindow');
@@ -2330,6 +2503,23 @@ const engine = new Engine();
 const renderer = new Renderer(canvas, engine);
 const ui = new UIController(canvas, engine, renderer);
 let last = performance.now();
+
+
+function firstSetupApp() {
+  ui._resizeCanvas();
+  navigatorLang();
+  
+  let config = query_read();
+  for(let i = 0; i < config.length; i++) {
+    let line = config[i];
+    if (line.length === 2 && line[0] === 'loadFile') {
+	  openFile('./' + line[1]);
+    }
+  }
+}
+
+
+firstSetupApp();
 
 aboutWindowClose.onclick = () => aboutWindow.close();
 
@@ -2357,6 +2547,22 @@ function fillText(componentEdit) {
 function textPromptDialog(content='Text') {
   textInput.value = content;
   textPrompt.showModal();
+}
+
+
+// Read query string from URL
+function query_read() {
+  var url = document.location.href.split('?');
+  if (url.length < 2)
+    return [];
+  var values = url[1].split('&');
+  var vars = [];
+  for(i=0; i<values.length; i++) {
+    var value = values[i].split('=');
+    if (value.length != 2) continue;
+    vars.push(value);
+  }
+  return vars;
 }
 
 </script>

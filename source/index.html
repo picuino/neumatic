@@ -251,8 +251,8 @@
     <div>
     <h2>Picuino Pneumatic Simulator</h2>
     <p><strong>Copyright © 2025 Carlos Félix Pardo Martín.</strong></p>
-    <p><strong>Email:</strong><span style="unicode-bidi:bidi-override; direction: rtl;">moc.oniu<span style="display:none">n</span>cip&#64;sol<span style="display:none">novale</span>rac<span></p>
-    <p><strong>GitHub: </strong><a href="https://github.com/picuino/neumatic/" target="_blank">Neumatic Simulator program source</a></p>
+    <p><strong>Email: </strong><span style="unicode-bidi:bidi-override; direction: rtl;">moc.oniu<span style="display:none">n</span>cip&#64;sol<span style="display:none">novale</span>rac<span></p>
+    <p><strong>GitHub: </strong><a href="https://github.com/picuino/neumatic/" target="_blank">Neumatic Simulator source code</a></p>
     <p>
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -268,7 +268,7 @@
     along with this program. If not, see
     <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">
     www.gnu.org/licenses/gpl-3.0.html</a>.</p>
-    <button id="closeBtn">Cerrar</button>
+    <button id="closeBtn" data-i18n="closeBtn">Close window</button>
     </div>
   </dialog>
 
@@ -295,7 +295,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '1.1';
+const programVersion = '1.2';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -325,6 +325,7 @@ const translations = {
 
   en: {
     title: 'Pneumatic Simulator - Picuino',
+	closeBtn: 'Close window',
     fileMenu: 'File',
     fNew: 'New Schematic',
     fOpen: 'Open Schematic',
@@ -365,6 +366,7 @@ const translations = {
 
   es: {
     title: 'Simulador Neumático - Picuino',
+	closeBtn: 'Cerrar ventana',
     fileMenu: 'Archivo',
     fNew: 'Nuevo Esquema',
     fOpen: 'Abrir Esquema',
@@ -793,7 +795,8 @@ class ValveNret extends ComponentBase {
     super(pos);
     this.type = 'ValveNret';
     this.conductance = conductanceBase;
-    this.minPressure = 0.1; // bar
+    this.minPressure = 0.02; // bar
+    this.active = false;
   }
 
   vias() {
@@ -811,6 +814,10 @@ class ValveNret extends ComponentBase {
       const q = dpress*this.conductance*dt;
       node1.addAir(-q);
       node2.addAir(q);
+      this.active = true;
+    }
+    else {
+      this.active = false;
     }
   }
 
@@ -835,11 +842,11 @@ class ValveNret extends ComponentBase {
     ctx.stroke();
 
     ctx.beginPath();
-    if (true) {
-      ctx.arc(this.x,this.y-25, 6, 0, Math.PI*2);
+    if (this.active === false) {
+      ctx.arc(this.x,this.y-26, 6, 0, Math.PI*2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(this.x, this.y-31);
+      ctx.moveTo(this.x, this.y-32);
       ctx.lineTo(this.x, this.y-40);
       }
     else {
@@ -2037,8 +2044,6 @@ class UIController {
       if (event.key === "Delete") { this._delete(); }
       this.renderer.draw();
     });
-
-    this._resizeCanvas();
   }
 
   _delete() {
@@ -2344,6 +2349,21 @@ async function openSchema() {
 }
 
 
+async function openFile(filename) {
+  try {
+    const answer = await fetch(filename);
+    
+    if (!answer.ok) {
+	  throw new Error("Could not read the file");
+	}
+    const data = await answer.text();
+    loadSchema(data);
+    engine.createNodes();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
 function savePNG() {
   renderer.draw();
 
@@ -2362,13 +2382,13 @@ function savePNG() {
 function saveSchema(rol) {
   let schematic = [{
     type: 'Schematic',
-    program: 'Pneumatic Simulator Picuino',
+    program: 'Picuino Pneumatic Simulator',
     version: programVersion,
   }];
   for (const comp of engine.components) {
-    const data = comp.serialize;
+    let data = comp.serialize();
     if (rol === 'teacher') {
-      data.timeStamp = '1000000000';
+      data.stamp = '1000000000';
     }
     schematic.push(data);
   }
@@ -2470,8 +2490,6 @@ function navigatorLang() {
   setLanguage(lang)
 }
   
-navigatorLang();
-
 
 /************************ MAIN ************************/
 
@@ -2485,6 +2503,23 @@ const engine = new Engine();
 const renderer = new Renderer(canvas, engine);
 const ui = new UIController(canvas, engine, renderer);
 let last = performance.now();
+
+
+function firstSetupApp() {
+  ui._resizeCanvas();
+  navigatorLang();
+  
+  let config = query_read();
+  for(let i = 0; i < config.length; i++) {
+    let line = config[i];
+    if (line.length === 2 && line[0] === 'loadFile') {
+	  openFile('./' + line[1]);
+    }
+  }
+}
+
+
+firstSetupApp();
 
 aboutWindowClose.onclick = () => aboutWindow.close();
 
@@ -2512,6 +2547,22 @@ function fillText(componentEdit) {
 function textPromptDialog(content='Text') {
   textInput.value = content;
   textPrompt.showModal();
+}
+
+
+// Read query string from URL
+function query_read() {
+  var url = document.location.href.split('?');
+  if (url.length < 2)
+    return [];
+  var values = url[1].split('&');
+  var vars = [];
+  for(i=0; i<values.length; i++) {
+    var value = values[i].split('=');
+    if (value.length != 2) continue;
+    vars.push(value);
+  }
+  return vars;
 }
 
 </script>

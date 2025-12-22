@@ -5,7 +5,7 @@ export default defineConfig({
   base: './',
   root: 'source',
   build: {
-    outDir: resolve(__dirname, 'build'),
+    outDir: resolve(__dirname, 'docs'),
     emptyOutDir: true, // Limpia la carpeta build antes de construir
     
     rollupOptions: {

@@ -1,7 +1,7 @@
 {
-  "name": "Simulador neumático",
+  "name": "Picuino Pneumatic Simulator",
   "private": true,
-  "version": "0.1",
+  "version": "1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

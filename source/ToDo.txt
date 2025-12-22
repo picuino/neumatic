@@ -2,23 +2,17 @@ TO-DO
 =====
 * Ver posición del cursor en todas las ocasiones.
 
-* Corregir el bug que hace que el cilindro1 se vea en negro al moverlo.
-
 * Añadir reset de la simulación para que todo vuelva al estado inicial.
 
 * Añadir simulación por pasos.
 
-* Añadir editar el esquema mientras simula.
+* Añadir editar el esquema mientras se simula.
 
 * Añadir visualizar flujo de aire en las tuberías.
 
 * Añadir opción de esquemas de ejemplo.
 
-* Añadir opción para borrar los timeStamps a cero.
-
 * Cargar un archivo a partir del nombre en la url.
-
-* Añadir internacionalización para traducir elementos de la app.
 
 * Seleccionar conjunto de componentes y mover la selección.
 
@@ -26,6 +20,12 @@ TO-DO
 22/12/2025
 ----------
 * Añadir variable global Versión que se utilice en todo el código.
+
+* Añadir internacionalización para traducir elementos de la app.
+
+* Añadir opción para borrar los timeStamps a cero.
+
+* Añadir opción para guardar esquemas con timeStamps a cero.
 
 
 21/12/2025

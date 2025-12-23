@@ -148,7 +148,7 @@
         <ul class="submenu">
           <li><a href="#" data-action="fNew"   data-i18n="fNew">New Schematic</a></li>
           <li><a href="#" data-action="fOpen"  data-i18n="fOpen">Open Schematic</a></li>
-          
+
           <li class="has-submenu">
             <a href="#" data-i18n="fSave">Save Schematic</a>
             <ul class="submenu">
@@ -156,7 +156,7 @@
               <li><a href="#" data-action="fSaveTeacher" data-i18n="fSaveTeacher">Teacher</a></li>
             </ul>
           </li>
-          
+
           <li><a href="#" data-action="fSavePNG" data-i18n="fSavePNG">Save Image</a></li>
 
           <li class="has-submenu">
@@ -166,7 +166,7 @@
               <li><a href="#" data-action="esLang" data-i18n="esLang">Spanish</a></li>
             </ul>
           </li>
-          
+
           <li><a href="#" data-action="fAbout" data-i18n="fAbout">About...</a></li>
         </ul>
       </li>
@@ -306,7 +306,7 @@ const textFont = '14px sans-serif';
 const canvasScale = 2;
 const airPressure = 1; // bar
 const compressorPressure = 8; // bar
-const conductanceBase = 500;
+const conductanceBase = 1000;
 
 let drawMode = null;
 let componentType = null;
@@ -358,7 +358,7 @@ const translations = {
     eDelete: 'Delete',
     eMove: 'Move',
     eModify: 'Modify',
-    simulateMenu: 'Simulate',    
+    simulateMenu: 'Simulate',
     sInit: 'Init',
     sStop: 'Stop',
     sContinue: 'Continue',
@@ -398,7 +398,7 @@ const translations = {
     editMenu: 'Editar',
     eDelete: 'Borrar',
     eMove: 'Mover',
-    eModify: 'Modificar',   
+    eModify: 'Modificar',
     simulateMenu: 'Simular',
     sInit: 'Iniciar',
     sStop: 'Detener',
@@ -658,16 +658,31 @@ class ComponentBase {
   update(engine, dt) {}
 
   computeFlow(node1, node2, conductance, dt) {
-    let dpress1 = node1.pressure - node2.pressure;
-    let p1 = node1.pressure - dt * dpress1 * this.conductance / node1.volume;
-    let p2 = node2.pressure + dt * dpress1 * this.conductance / node2.volume;
+    let dpress = node1.pressure - node2.pressure;
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    const k1_p1 = dt * dpress * this.conductance / node1.volume;
+    const k1_p2 = dt * dpress * this.conductance / node2.volume;
 
-    let dpress2 = p1 - p2;
-    node1.pressure -= 0.5 * dt * (dpress1 + dpress2) * this.conductance / node1.volume;
-    node2.pressure += 0.5 * dt * (dpress1 + dpress2) * this.conductance / node2.volume;
+    dpress = (node1.pressure - 0.5 * k1_p1) - (node2.pressure + 0.5 * k1_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    const k2_p1 = dt * dpress * this.conductance / node1.volume;
+    const k2_p2 = dt * dpress * this.conductance / node2.volume;
+    
+    dpress = (node1.pressure - 0.5 * k2_p1) - (node2.pressure + 0.5 * k2_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    const k3_p1 = dt * dpress * this.conductance / node1.volume;
+    const k3_p2 = dt * dpress * this.conductance / node2.volume;
+    
+    dpress = (node1.pressure - k3_p1) - (node2.pressure + k3_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    const k4_p1 = dt * dpress * this.conductance / node1.volume;
+    const k4_p2 = dt * dpress * this.conductance / node2.volume;
+
+    node1.pressure -= (k1_p1 + 2*k2_p1 + 2*k3_p1 + k4_p1) / 6;
+    node2.pressure += (k1_p2 + 2*k2_p2 + 2*k3_p2 + k4_p2) / 6;
   }
 
-  serialize(){
+  serialize() {
     return {type:this.type, stamp:this.timestamp, x:this.x, y:this.y};
   }
 }
@@ -803,7 +818,7 @@ class ValveNret extends ComponentBase {
     this.type = 'ValveNret';
     this.conductance = conductanceBase;
     this.minPressure = 0.1; // bar
-    this.flipped = true;
+    this.flipped = false;
     this.active = false;
   }
 
@@ -832,12 +847,12 @@ class ValveNret extends ComponentBase {
       this.active = false;
     }
   }
-  
+
   flip() {
     if (this.flipped) this.flipped = false;
     else this.flipped = true;
   }
-  
+
   near(pos) {
     return this.nearRect(this.x-10, this.y-40, this.x+10, this.y-10, pos);
   }
@@ -881,7 +896,7 @@ class ValveNret extends ComponentBase {
     }
     ctx.stroke();
   }
-  
+
   drawValveNret(ctx) {
     ctx.beginPath();
     ctx.lineTo(this.x, this.y-10);
@@ -909,6 +924,10 @@ class ValveNret extends ComponentBase {
     }
     ctx.stroke();
   }
+
+  serialize() {
+    return {type:this.type, stamp:this.timestamp, x:this.x, y:this.y, flipped:this.flipped};
+  }
 }
 
 
@@ -916,7 +935,7 @@ class ValveFlow extends ComponentBase {
   constructor(pos) {
     super(pos);
     this.type = 'ValveFlow';
-    this.conductance = 2;
+    this.conductance = 50;
   }
 
   vias() {
@@ -1167,7 +1186,7 @@ class Cylinder1 extends ComponentBase {
     this.area = 12; // cm3
     this.springForce = 0.5; // kgf/cm
     this.springForceMin = 10; // kgf
-    this.frictionForce = 0.1; // kgf
+    this.frictionForce = 0.5; // kgf
     this.pistonMass = 0.2; // kg
     this.speed = 0; // cm/s
   }
@@ -1184,6 +1203,8 @@ class Cylinder1 extends ComponentBase {
     const volume = this.position.actual * this.area + this.volumeMin;
     const q = this.conductance * (node1.pressure - this.pressure);
     this.pressure += dt * (q - this.speed*this.pressure*this.area) / volume;
+    node1.pressure -= dt * q / node1.volume;
+    
     const forceAir = this.area*(this.pressure-airPressure);
     const forceSpring = this.springForceMin + this.position.actual*this.springForce;
     let force = 0;
@@ -1226,14 +1247,14 @@ class Cylinder1 extends ComponentBase {
     this.drawRectangle(ctx, this.x-5, this.y-40, this.x+115, this.y-10);
     this.drawPiston(ctx, this.shift);
   }
-  
+
   drawPressure(ctx, posX, posY) {
     const pressureColor = 255 - 255 * (this.pressure - airPressure) / compressorPressure;
     const color = 'rgb(' + 255 + ',' + pressureColor + ',' + pressureColor + ')';
     ctx.fillStyle = color;
-    ctx.fillRect(posX, posY, 10 + this.shift, 30); 
+    ctx.fillRect(posX, posY, 10 + this.shift, 30);
   }
-  
+
   drawPiston(ctx, shift) {
     let posX = this.x + shift;
     this.drawRectangle(ctx, posX+5, this.y-10, posX+15, this.y-40);
@@ -1271,15 +1292,15 @@ class Cylinder2 extends ComponentBase {
     this.pressure2 = 1; // bar
     this.n1 = 0;
     this.n2 = 0;
-    this.conductance = 200;
-    this.position = {min:0, max:20, actual:0};
+    this.conductance = conductanceBase;
+    this.position = {min:0, max:0.20, actual:0};
     this.volumeMin = 12;
     this.area1 = 12; // cm3
     this.area2 = 9; // cm3
     this.areaPiston = this.area1 - this.area2;
-    this.frictionForce = 0.1; // kgf
-    this.frictionStatic = 0.2; //kgf
-    this.pistonMass = 0.2; // kg
+    this.frictionForce = 0.3; // kgf
+    this.frictionStatic = 0.5; //kgf
+    this.pistonMass = 1; // kg
     this.speed = 0; // cm/s
   }
 
@@ -1293,50 +1314,74 @@ class Cylinder2 extends ComponentBase {
     const [via1, via2] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-
-    let volume1 = this.position.actual * this.area1 + this.volumeMin;
-    let volume2 = (this.position.max - this.position.actual) * this.area2 + this.volumeMin;
-    if (this.n1 === 0) {
-      this.n1 = volume1 * this.pressure1;
-    }
-    if (this.n2 === 0) {
-      this.n2 = volume2 * this.pressure2;
-    }
     
-    const q1 = this.conductance * (node1.pressure - this.pressure1);
-    const q2 = this.conductance * (node2.pressure - this.pressure2);
-    this.n1 += dt * q1;
-    this.n2 += dt * q2;
+    const volume1 = 100*this.position.actual * this.area1 + this.volumeMin;
+    const volume2 = 100*(this.position.max - this.position.actual) * this.area2 + this.volumeMin;
+    
+    // Compute node1 flow
+    let dpress = node1.pressure - this.pressure1;
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k1_p1 = dt * dpress * this.conductance / node1.volume;
+    let k1_p2 = dt * dpress * this.conductance;
+
+    dpress = (node1.pressure - 0.5 * k1_p1) - (this.pressure1 + 0.5 * k1_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k2_p1 = dt * dpress * this.conductance / node1.volume;
+    let k2_p2 = dt * dpress * this.conductance;
+    
+    dpress = (node1.pressure - 0.5 * k2_p1) - (this.pressure1 + 0.5 * k2_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k3_p1 = dt * dpress * this.conductance / node1.volume;
+    let k3_p2 = dt * dpress * this.conductance;
+    
+    dpress = (node1.pressure - k3_p1) - (this.pressure1 + k3_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k4_p1 = dt * dpress * this.conductance / node1.volume;
+    let k4_p2 = dt * dpress * this.conductance;
+
+    node1.pressure -= (k1_p1 + 2*k2_p1 + 2*k3_p1 + k4_p1) / 6;   
+    this.n1 += (k1_p2 + 2*k2_p2 + 2*k3_p2 + k4_p2) / 6;
+    
+    
+    // Compute node2 flow
+    dpress = node2.pressure - this.pressure2;
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    k1_p1 = dt * dpress * this.conductance / node2.volume;
+    k1_p2 = dt * dpress * this.conductance;
+
+    dpress = (node2.pressure - 0.5 * k1_p1) - (this.pressure2 + 0.5 * k1_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    k2_p1 = dt * dpress * this.conductance / node2.volume;
+    k2_p2 = dt * dpress * this.conductance;
+    
+    dpress = (node2.pressure - 0.5 * k2_p1) - (this.pressure2 + 0.5 * k2_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    k3_p1 = dt * dpress * this.conductance / node2.volume;
+    k3_p2 = dt * dpress * this.conductance;
+    
+    dpress = (node2.pressure - k3_p1) - (this.pressure2 + k3_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    k4_p1 = dt * dpress * this.conductance / node2.volume;
+    k4_p2 = dt * dpress * this.conductance;
+
+    node2.pressure -= (k1_p1 + 2*k2_p1 + 2*k3_p1 + k4_p1) / 6;   
+    this.n2 += (k1_p2 + 2*k2_p2 + 2*k3_p2 + k4_p2) / 6;
+    
+    
+    // Compute piston movement
+    if (this.n1 === 0) this.n1 = this.pressure1 * volume1;
+    if (this.n2 === 0) this.n2 = this.pressure2 * volume2;
+    
     this.pressure1 = this.n1 / volume1;
     this.pressure2 = this.n2 / volume2;
+    let force1 = this.pressure1 * this.area1; // kgf
+    let force2 = this.pressure2 * this.area2 + airPressure * this.areaPiston; // kgf
+    let netForce = force1 - force2 - this.frictionForce*Math.sign(this.speed);
+    this.speed += dt * netForce * 9.8 / this.pistonMass;
+    this.position.actual += dt * this.speed;
 
-    const force1 = this.pressure1 * this.area1; // kgf
-    const force2 = this.pressure2 * this.area2 + airPressure * this.areaPiston; // kgf
-    let netForce = force1 - force2;
-
-    if (this.speed === 0) {
-      if (Math.abs(netForce) > this.frictionStatic) {
-        if (netForce > 0) {
-          netForce -= this.frictionForce;
-        }
-        else {
-          netForce += this.frictionForce;
-        }
-        this.speed += dt * netForce / this.pistonMass;
-      }
-    }
-    else {
-      netForce += this.frictionForce * Math.sign(this.speed);
-      const dspeed = dt * netForce / this.pistonMass;
-      if (Math.sign(this.speed) !== Math.sign(this.speed + dt)) {
-        this.speed = 0;
-      }
-      else
-        this.speed += dspeed;
-    }
-
-    this.position.actual += this.speed * dt;
-
+    // Stop at begining and end. Shift piston image
+    if (this.position.actual)
     if (this.position.actual < this.position.min) {
       this.position.actual = this.position.min;
       this.speed = 0;
@@ -1348,7 +1393,7 @@ class Cylinder2 extends ComponentBase {
     this.shift = this.maxShift * (this.position.actual-this.position.min)/
                  (this.position.max - this.position.min);
   }
-
+  
   near(pos) {
     return this.nearRect(this.x-5, this.y-40, this.x+100, this.y-10, pos);
   }
@@ -1367,15 +1412,15 @@ class Cylinder2 extends ComponentBase {
     const pressureColor = 255 - 255 * (this.pressure1 - airPressure) / compressorPressure;
     const color = 'rgb(' + 255 + ',' + pressureColor + ',' + pressureColor + ')';
     ctx.fillStyle = color;
-    ctx.fillRect(this.x-5, this.y-40, 10 + this.shift, 30); 
+    ctx.fillRect(this.x-5, this.y-40, 10 + this.shift, 30);
   }
 
   drawPressure2(ctx) {
     const pressureColor = 255 - 255 * (this.pressure2 - airPressure) / compressorPressure;
     const color = 'rgb(' + 255 + ',' + pressureColor + ',' + pressureColor + ')';
     ctx.fillStyle = color;
-    ctx.fillRect(this.x+15+this.shift, this.y-40, 100-this.shift, 10); 
-    ctx.fillRect(this.x+15+this.shift, this.y-20, 100-this.shift, 10); 
+    ctx.fillRect(this.x+15+this.shift, this.y-40, 100-this.shift, 10);
+    ctx.fillRect(this.x+15+this.shift, this.y-20, 100-this.shift, 10);
   }
 
   drawPiston(ctx, shift) {
@@ -1655,9 +1700,9 @@ class Roller extends ComponentBase {
     for (const comp of engine.components) {
       if (['Valve32r'].includes(comp.type)) {
         if (this.content.slice(0, 3) === comp.content.slice(0, 3)) {
-          if (this.shift === 0) 
+          if (this.shift === 0)
             comp.active = false;
-          else 
+          else
             comp.active = true;
         }
       }
@@ -1672,7 +1717,7 @@ class Roller extends ComponentBase {
     }
     return false;
   }
-  
+
   near(pos) {
     return this.nearRect(this.x-15, this.y-40, this.x+15, this.y, pos);
   }
@@ -1705,7 +1750,7 @@ class Roller extends ComponentBase {
     ctx.arc(this.x, posY, 1, 0, Math.PI*2);
     ctx.stroke();
   }
-  
+
   serialize(){
     return {type:this.type, stamp:this.timestamp, x:this.x, y:this.y, content:this.content};
   }
@@ -1932,10 +1977,6 @@ class Node {
   }
 
   addAir(q) {
-    if (Number.isNaN(q)) {
-      console.log('NaN node', this.x, this.y);
-      return;
-    }
     this.pressure += q / this.volume;
   }
 }
@@ -2107,7 +2148,7 @@ class UIController {
     if (drawMode === 'Edit') {
       componentEdit = null;
       for (const comp of this.engine.components) {
-        if (comp.near(position) && 
+        if (comp.near(position) &&
             ['Text', 'Valve32r', 'Roller'].includes(comp.type)) {
           componentEdit = comp;
           break;
@@ -2116,7 +2157,7 @@ class UIController {
       if (componentEdit) {
         fillText(componentEdit);
       }
-      
+
       for (const comp of this.engine.components) {
         if (comp.near(position) && ['ValveNret'].includes(comp.type)) {
           comp.flip();
@@ -2253,12 +2294,6 @@ class UIController {
     this.dragging = null;
   }
 
-  _updateInspector(){
-    const id = this.renderer.selectedId;
-    if(!id){ this.inspector.textContent = '(Selecciona un componente)'; return; }
-    const comp = this.engine.components[id];
-    this.inspector.textContent = JSON.stringify(comp.serialize(),null,2);
-  }
 }
 
 /*************************************************************************/
@@ -2324,11 +2359,14 @@ function loadSchema(schematicJSON) {
     if (comp.type === 'Valve32m')   newcomp = new Valve32m({x:comp.x, y:comp.y});
     if (comp.type === 'Valve52m')   newcomp = new Valve52m({x:comp.x, y:comp.y});
     if (comp.type === 'Valve52p')   newcomp = new Valve52p({x:comp.x, y:comp.y});
-    if (comp.type === 'ValveNret')  newcomp = new ValveNret({x:comp.x, y:comp.y});
     if (comp.type === 'ValveFlow')  newcomp = new ValveFlow({x:comp.x, y:comp.y});
     if (comp.type === 'ValveOr')    newcomp = new ValveOr({x:comp.x, y:comp.y});
     if (comp.type === 'ValveAnd')   newcomp = new ValveAnd({x:comp.x, y:comp.y});
     if (comp.type === 'Pipe')       newcomp = new Pipe(comp.init, comp.end);
+    if (comp.type === 'ValveNret') {
+	  newcomp = new ValveNret({x:comp.x, y:comp.y});
+	  newcomp.flipped = comp.flipped;
+    }
     if (comp.type === 'Valve32r') {
       newcomp = new Valve32r({x:comp.x, y:comp.y});
       newcomp.content = comp.content;
@@ -2368,7 +2406,7 @@ async function openSchema() {
 async function openFile(filename) {
   try {
     const answer = await fetch(filename);
-    
+
     if (!answer.ok) {
 	  throw new Error("Could not read the file");
 	}
@@ -2458,8 +2496,8 @@ function simulationRender(ms) {
 
   // Ejecutar tantos pasos de 1 ms como quepan en el tiempo acumulado
   while (simulationTime < ms) {
-    engine.render(0.010);
-    simulationTime += 10;
+    engine.render(0.002);
+    simulationTime += 2;
   }
 
   // Aquí solo dibujas el estado actual (una vez por frame)
@@ -2505,7 +2543,7 @@ function navigatorLang() {
   const lang = (navigator.language || navigator.userLanguage).substring(0, 2);
   setLanguage(lang)
 }
-  
+
 
 /************************ MAIN ************************/
 
@@ -2524,7 +2562,7 @@ let last = performance.now();
 function firstSetupApp() {
   ui._resizeCanvas();
   navigatorLang();
-  
+
   let config = query_read();
   for(let i = 0; i < config.length; i++) {
     let line = config[i];

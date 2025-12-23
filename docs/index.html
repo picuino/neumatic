@@ -657,6 +657,16 @@ class ComponentBase {
 
   update(engine, dt) {}
 
+  computeFlow(node1, node2, conductance, dt) {
+    let dpress1 = node1.pressure - node2.pressure;
+    let p1 = node1.pressure - dt * dpress1 * this.conductance / node1.volume;
+    let p2 = node2.pressure + dt * dpress1 * this.conductance / node2.volume;
+
+    let dpress2 = p1 - p2;
+    node1.pressure -= 0.5 * dt * (dpress1 + dpress2) * this.conductance / node1.volume;
+    node2.pressure += 0.5 * dt * (dpress1 + dpress2) * this.conductance / node2.volume;
+  }
+
   serialize(){
     return {type:this.type, stamp:this.timestamp, x:this.x, y:this.y};
   }
@@ -713,10 +723,7 @@ class Pipe extends ComponentBase {
     const [via1, via2] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-    const dpress = node1.pressure - node2.pressure;
-    const q = dpress*this.conductance*dt;
-    node1.addAir(-q);
-    node2.addAir(q);
+    this.computeFlow(node1, node2, this.conductance, dt);
   }
 
   moveInit(pos) {
@@ -795,7 +802,8 @@ class ValveNret extends ComponentBase {
     super(pos);
     this.type = 'ValveNret';
     this.conductance = conductanceBase;
-    this.minPressure = 0.02; // bar
+    this.minPressure = 0.1; // bar
+    this.flipped = true;
     this.active = false;
   }
 
@@ -809,18 +817,27 @@ class ValveNret extends ComponentBase {
     const [via1, via2] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-    const dpress = node1.pressure - node2.pressure;
+    let dpress = 0;
+    if (this.flipped) {
+      dpress = node2.pressure - node1.pressure;
+    }
+    else {
+      dpress = node1.pressure - node2.pressure;
+    }
     if (dpress > this.minPressure) {
-      const q = dpress*this.conductance*dt;
-      node1.addAir(-q);
-      node2.addAir(q);
+      this.computeFlow(node1, node2, this.conductance, dt);
       this.active = true;
     }
     else {
       this.active = false;
     }
   }
-
+  
+  flip() {
+    if (this.flipped) this.flipped = false;
+    else this.flipped = true;
+  }
+  
   near(pos) {
     return this.nearRect(this.x-10, this.y-40, this.x+10, this.y-10, pos);
   }
@@ -829,9 +846,42 @@ class ValveNret extends ComponentBase {
     ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10);
     this.drawPort(ctx, this.x, this.y-50, 0, 10);
-    this.drawValveNret(ctx);
+    if (this.flipped) {
+      this.drawValveNretFlipped(ctx);
+    }
+    else {
+      this.drawValveNret(ctx);
+    }
   }
 
+  drawValveNretFlipped(ctx) {
+    ctx.beginPath();
+    ctx.lineTo(this.x, this.y-40);
+    ctx.lineTo(this.x, this.y-35);
+    ctx.lineTo(this.x-10, this.y-25);
+    ctx.lineTo(this.x, this.y-35);
+    ctx.lineTo(this.x+10, this.y-25);
+    ctx.stroke();
+
+    ctx.beginPath();
+    if (this.active === false) {
+      ctx.arc(this.x,this.y-24, 6, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y-18);
+      ctx.lineTo(this.x, this.y-10);
+      }
+    else {
+      ctx.beginPath();
+      ctx.arc(this.x,this.y-20, 6, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y-14);
+      ctx.lineTo(this.x, this.y-10);
+    }
+    ctx.stroke();
+  }
+  
   drawValveNret(ctx) {
     ctx.beginPath();
     ctx.lineTo(this.x, this.y-10);
@@ -866,7 +916,7 @@ class ValveFlow extends ComponentBase {
   constructor(pos) {
     super(pos);
     this.type = 'ValveFlow';
-    this.conductance = 1;
+    this.conductance = 2;
   }
 
   vias() {
@@ -879,10 +929,7 @@ class ValveFlow extends ComponentBase {
     const [via1, via2] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-    const dpress = node1.pressure - node2.pressure;
-    const q = dpress*this.conductance*dt;
-    node1.addAir(-q);
-    node2.addAir(q);
+    this.computeFlow(node1, node2, this.conductance, dt);
   }
 
   near(pos) {
@@ -935,16 +982,10 @@ class ValveOr extends ComponentBase {
     const node3 = engine.findNode(via3);
 
     if (this.shift === this.maxShift) {
-      const dpress = node1.pressure - node3.pressure;
-      const q = dpress*this.conductance*dt;
-      node1.addAir(-q);
-      node3.addAir(q);
+      this.computeFlow(node1, node3, this.conductance, dt);
     }
     if (this.shift === 0) {
-      const dpress = node2.pressure - node3.pressure;
-      const q = dpress*this.conductance*dt;
-      node2.addAir(-q);
-      node3.addAir(q);
+      this.computeFlow(node1, node3, this.conductance, dt);
     }
     if (this.shift === 0 && node1.pressure > node2.pressure + 0.1) {
       this.shift = this.maxShift;
@@ -1015,17 +1056,11 @@ class ValveAnd extends ComponentBase {
     const node3 = engine.findNode(via3);
 
     if (node1.pressure > node2.pressure + 0.1) {
-      const dpress = node2.pressure - node3.pressure;
-      const q = dpress*this.conductance*dt;
-      node2.addAir(-q);
-      node3.addAir(q);
+      this.computeFlow(node2, node3, this.conductance, dt);
       this.shift = this.maxShift;
     }
     if (node2.pressure > node1.pressure + 0.1) {
-      const dpress = node1.pressure - node3.pressure;
-      const q = dpress*this.conductance*dt;
-      node1.addAir(-q);
-      node3.addAir(q);
+      this.computeFlow(node1, node3, this.conductance, dt);
       this.shift = 0;
     }
   }
@@ -1039,11 +1074,11 @@ class ValveAnd extends ComponentBase {
     this.drawPort(ctx, this.x, this.y, 0, 17);
     this.drawPort(ctx, this.x-40, this.y+30, 10, 0);
     this.drawPort(ctx, this.x+40, this.y+30, -10, 0);
-    this.drawValveOr(ctx);
+    this.drawValveAnd(ctx);
     this.drawMovement(ctx);
   }
 
-  drawValveOr(ctx) {
+  drawValveAnd(ctx) {
     this.drawRectangle(ctx, this.x-30, this.y+17, this.x+30, this.y+43);
 
     ctx.beginPath();
@@ -1234,13 +1269,16 @@ class Cylinder2 extends ComponentBase {
     this.color = '#000';
     this.pressure1 = 1; // bar
     this.pressure2 = 1; // bar
-    this.conductance = conductanceBase;
+    this.n1 = 0;
+    this.n2 = 0;
+    this.conductance = 200;
     this.position = {min:0, max:20, actual:0};
     this.volumeMin = 12;
     this.area1 = 12; // cm3
     this.area2 = 9; // cm3
     this.areaPiston = this.area1 - this.area2;
     this.frictionForce = 0.1; // kgf
+    this.frictionStatic = 0.2; //kgf
     this.pistonMass = 0.2; // kg
     this.speed = 0; // cm/s
   }
@@ -1256,20 +1294,28 @@ class Cylinder2 extends ComponentBase {
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
 
-    const volume1 = this.position.actual * this.area1 + this.volumeMin;
-    const volume2 = (this.position.max - this.position.actual) * this.area2 + this.volumeMin;
-
+    let volume1 = this.position.actual * this.area1 + this.volumeMin;
+    let volume2 = (this.position.max - this.position.actual) * this.area2 + this.volumeMin;
+    if (this.n1 === 0) {
+      this.n1 = volume1 * this.pressure1;
+    }
+    if (this.n2 === 0) {
+      this.n2 = volume2 * this.pressure2;
+    }
+    
     const q1 = this.conductance * (node1.pressure - this.pressure1);
     const q2 = this.conductance * (node2.pressure - this.pressure2);
-    const dp1 = dt * (q1 - this.speed*this.pressure1*this.area1) / volume1;
-    this.pressure1 += dt * (q1 - this.speed*this.pressure1*this.area1) / volume1;
-    this.pressure2 += dt * (q2 + this.speed*this.pressure2*this.area2) / volume2;
+    this.n1 += dt * q1;
+    this.n2 += dt * q2;
+    this.pressure1 = this.n1 / volume1;
+    this.pressure2 = this.n2 / volume2;
+
     const force1 = this.pressure1 * this.area1; // kgf
     const force2 = this.pressure2 * this.area2 + airPressure * this.areaPiston; // kgf
     let netForce = force1 - force2;
 
     if (this.speed === 0) {
-      if (Math.abs(netForce) > this.frictionForce) {
+      if (Math.abs(netForce) > this.frictionStatic) {
         if (netForce > 0) {
           netForce -= this.frictionForce;
         }
@@ -1280,8 +1326,13 @@ class Cylinder2 extends ComponentBase {
       }
     }
     else {
-      netForce += this.frictionForce*Math.sign(this.speed);
-      this.speed += dt * netForce / this.pistonMass;
+      netForce += this.frictionForce * Math.sign(this.speed);
+      const dspeed = dt * netForce / this.pistonMass;
+      if (Math.sign(this.speed) !== Math.sign(this.speed + dt)) {
+        this.speed = 0;
+      }
+      else
+        this.speed += dspeed;
     }
 
     this.position.actual += this.speed * dt;
@@ -1361,10 +1412,7 @@ class Valve22m extends ComponentBase {
       const [via1, via2] = this.vias();
       const node1 = engine.findNode(via1);
       const node2 = engine.findNode(via2);
-      const dpress = node1.pressure - node2.pressure;
-      const q = dpress*this.conductance*dt;
-      node1.addAir(-q);
-      node2.addAir(q);
+      this.computeFlow(node1, node2, this.conductance, dt);
     }
     if (this.active) {
        if (this.shift.pos < this.shift.max)
@@ -1440,16 +1488,10 @@ class Valve32m extends ComponentBase {
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
     if (this.shift.pos === this.shift.min) {
-      const dpress = node2.pressure - node3.pressure;
-      const q = dpress*this.conductance*dt;
-      node2.addAir(-q);
-      node3.addAir(q);
+      this.computeFlow(node2, node3, this.conductance, dt);
     }
     if (this.shift.pos === this.shift.max) {
-      const dpress = node1.pressure - node2.pressure;
-      const q = dpress*this.conductance*dt;
-      node1.addAir(-q);
-      node2.addAir(q);
+      this.computeFlow(node1, node2, this.conductance, dt);
     }
     if (this.active) {
        if (this.shift.pos < this.shift.max)
@@ -1527,16 +1569,10 @@ class Valve32r extends ComponentBase {
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
     if (this.shift.pos === this.shift.min) {
-      const dpress = node2.pressure - node3.pressure;
-      const q = dpress*this.conductance*dt;
-      node2.addAir(-q);
-      node3.addAir(q);
+      this.computeFlow(node2, node3, this.conductance, dt);
     }
     if (this.shift.pos === this.shift.max) {
-      const dpress = node1.pressure - node2.pressure;
-      const q = dpress*this.conductance*dt;
-      node1.addAir(-q);
-      node2.addAir(q);
+      this.computeFlow(node1, node2, this.conductance, dt);
     }
     if (this.active) {
        if (this.shift.pos < this.shift.max)
@@ -1708,26 +1744,12 @@ class Valve52m extends ComponentBase {
     const node4 = engine.findNode(via4);
     const node5 = engine.findNode(via5);
     if (this.shift.pos === this.shift.min) {
-      const dpress1 = node1.pressure - node5.pressure;
-      const q1 = dpress1*this.conductance*dt;
-      node1.addAir(-q1);
-      node5.addAir(q1);
-
-      const dpress2 = node2.pressure - node4.pressure;
-      const q2 = dpress2*this.conductance*dt;
-      node2.addAir(-q2);
-      node4.addAir(q2);
+      this.computeFlow(node1, node5, this.conductance, dt);
+      this.computeFlow(node4, node2, this.conductance, dt);
     }
     if (this.shift.pos === this.shift.max) {
-      const dpress1 = node1.pressure - node4.pressure;
-      const q1 = dpress1*this.conductance*dt;
-      node1.addAir(-q1);
-      node4.addAir(q1);
-
-      const dpress2 = node3.pressure - node5.pressure;
-      const q2 = dpress2*this.conductance*dt;
-      node3.addAir(-q2);
-      node5.addAir(q2);
+      this.computeFlow(node1, node4, this.conductance, dt);
+      this.computeFlow(node5, node3, this.conductance, dt);
     }
     if (this.active) {
        if (this.shift.pos < this.shift.max)
@@ -1826,26 +1848,12 @@ class Valve52p extends ComponentBase {
     }
 
     if (this.shift.pos === this.shift.min) {
-      const dpress1 = node1.pressure - node5.pressure;
-      const q1 = dpress1*this.conductance*dt;
-      node1.addAir(-q1);
-      node5.addAir(q1);
-
-      const dpress2 = node2.pressure - node4.pressure;
-      const q2 = dpress2*this.conductance*dt;
-      node2.addAir(-q2);
-      node4.addAir(q2);
+      this.computeFlow(node1, node5, this.conductance, dt);
+      this.computeFlow(node4, node2, this.conductance, dt);
     }
     if (this.shift.pos === this.shift.max) {
-      const dpress1 = node1.pressure - node4.pressure;
-      const q1 = dpress1*this.conductance*dt;
-      node1.addAir(-q1);
-      node4.addAir(q1);
-
-      const dpress2 = node3.pressure - node5.pressure;
-      const q2 = dpress2*this.conductance*dt;
-      node3.addAir(-q2);
-      node5.addAir(q2);
+      this.computeFlow(node1, node4, this.conductance, dt);
+      this.computeFlow(node5, node3, this.conductance, dt);
     }
     if (this.active) {
        if (this.shift.pos < this.shift.max)
@@ -2107,6 +2115,14 @@ class UIController {
       }
       if (componentEdit) {
         fillText(componentEdit);
+      }
+      
+      for (const comp of this.engine.components) {
+        if (comp.near(position) && ['ValveNret'].includes(comp.type)) {
+          comp.flip();
+          this.renderer.draw();
+          break;
+        }
       }
     }
 

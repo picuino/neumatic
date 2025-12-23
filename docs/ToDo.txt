@@ -14,6 +14,12 @@ TO-DO
 
 * Seleccionar conjunto de componentes y mover la selección.
 
+23/12/2025
+----------
+* Permitir modificar válvula de antirretorno para que voltee al revés.
+
+* Simulación de flujo por tuberías y válvulas por el método de Heun, más preciso.
+
 
 22/12/2025
 ----------

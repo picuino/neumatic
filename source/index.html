@@ -295,7 +295,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '1.2';
+const programVersion = '1.3';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -306,7 +306,7 @@ const textFont = '14px sans-serif';
 const canvasScale = 2;
 const airPressure = 1; // bar
 const compressorPressure = 8; // bar
-const conductanceBase = 1000;
+const conductanceBase = 500;
 
 let drawMode = null;
 let componentType = null;
@@ -1177,17 +1177,19 @@ class Cylinder1 extends ComponentBase {
     super(pos);
     this.type = 'Cylinder1';
     this.shift = 0;
-    this.maxShift = 80;
+    this.maxShift = 90;
     this.color = '#000';
     this.pressure = 1; // bar
+    this.n = 0;
     this.conductance = conductanceBase;
-    this.position = {min:0, max:20, actual:0};
+    this.position = {min:0, max:0.20, actual:0};
     this.volumeMin = 12; // cm3
     this.area = 12; // cm3
-    this.springForce = 0.5; // kgf/cm
-    this.springForceMin = 10; // kgf
+    this.springForce = 50; // kgf/m
+    this.springForceMin = 2; // kgf
     this.frictionForce = 0.5; // kgf
-    this.pistonMass = 0.2; // kg
+    this.frictionStatic = 0.8; // kgf
+    this.pistonMass = 1; // kg
     this.speed = 0; // cm/s
   }
 
@@ -1200,30 +1202,64 @@ class Cylinder1 extends ComponentBase {
     const [via1] = this.vias();
     const node1 = engine.findNode(via1);
 
-    const volume = this.position.actual * this.area + this.volumeMin;
-    const q = this.conductance * (node1.pressure - this.pressure);
-    this.pressure += dt * (q - this.speed*this.pressure*this.area) / volume;
-    node1.pressure -= dt * q / node1.volume;
+    let volume = 100*this.position.actual * this.area + this.volumeMin;
     
-    const forceAir = this.area*(this.pressure-airPressure);
-    const forceSpring = this.springForceMin + this.position.actual*this.springForce;
-    let force = 0;
-    if (this.speed === 0) {
-      if (Math.abs(forceAir-forceSpring) > this.frictionForce) {
-        if (forceAir - forceSpring > 0) {
-          force = forceAir - forceSpring - this.frictionForce;
+    // Compute node1 flow
+    let dpress = node1.pressure - this.pressure;
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k1_p1 = dt * dpress * this.conductance / node1.volume;
+    let k1_p2 = dt * dpress * this.conductance;
+
+    dpress = (node1.pressure - 0.5 * k1_p1) - (this.pressure + 0.5 * k1_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k2_p1 = dt * dpress * this.conductance / node1.volume;
+    let k2_p2 = dt * dpress * this.conductance;
+    
+    dpress = (node1.pressure - 0.5 * k2_p1) - (this.pressure + 0.5 * k2_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k3_p1 = dt * dpress * this.conductance / node1.volume;
+    let k3_p2 = dt * dpress * this.conductance;
+    
+    dpress = (node1.pressure - k3_p1) - (this.pressure + k3_p2);
+    dpress = Math.sign(dpress) * Math.sqrt(Math.abs(dpress));
+    let k4_p1 = dt * dpress * this.conductance / node1.volume;
+    let k4_p2 = dt * dpress * this.conductance;
+
+    node1.pressure -= (k1_p1 + 2*k2_p1 + 2*k3_p1 + k4_p1) / 6;   
+    this.n += (k1_p2 + 2*k2_p2 + 2*k3_p2 + k4_p2) / 6;
+
+    // Compute piston movement
+    if (this.n === 0) this.n = this.pressure * volume;
+    
+    for(let i = 0; i < 10; i++) {
+      volume = 100*this.position.actual * this.area + this.volumeMin;
+      this.pressure = this.n / volume;
+      let forcePiston = (this.pressure - airPressure) * this.area; // kgf
+      const forceSpring = this.springForceMin + this.position.actual*this.springForce;    
+      let netForce = forcePiston - forceSpring;
+      
+      if (this.speed === 0) {
+        if (Math.abs(netForce) > this.frictionStatic)
+          netForce -= this.frictionForce*Math.sign(netForce);
+        else
+          netForce = 0;
+        this.speed = 0.1 * dt * netForce * 9.8 / this.pistonMass;
+      }
+      else {
+        netForce -= this.frictionForce*Math.sign(this.speed);
+        const dspeed = 0.1 * dt * netForce * 9.8 / this.pistonMass;
+        if (Math.sign(dspeed) !== Math.sign(this.speed) && 
+          Math.abs(dspeed) > Math.abs(this.speed)) {
+          this.speed = 0;
         }
         else {
-          force = forceAir - forceSpring + this.frictionForce;
+          this.speed += dspeed;
         }
-        this.speed += dt * force / this.pistonMass;
       }
+      this.position.actual += 0.1*dt * this.speed;
     }
-    else {
-      force = forceAir - forceSpring + this.frictionForce*Math.sign(this.speed);
-      this.speed += dt * force / this.pistonMass;
-    }
-    this.position.actual += this.speed * dt;
+
+    // Stop at begining and end. Shift piston image
     if (this.position.actual < this.position.min) {
       this.position.actual = this.position.min;
       this.speed = 0;
@@ -1297,9 +1333,9 @@ class Cylinder2 extends ComponentBase {
     this.volumeMin = 12;
     this.area1 = 12; // cm3
     this.area2 = 9; // cm3
-    this.areaPiston = this.area1 - this.area2;
-    this.frictionForce = 0.3; // kgf
-    this.frictionStatic = 0.5; //kgf
+    this.areaRod = this.area1 - this.area2;
+    this.frictionForce = 0.5; // kgf
+    this.frictionStatic = 2; //kgf
     this.pistonMass = 1; // kg
     this.speed = 0; // cm/s
   }
@@ -1315,8 +1351,8 @@ class Cylinder2 extends ComponentBase {
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     
-    const volume1 = 100*this.position.actual * this.area1 + this.volumeMin;
-    const volume2 = 100*(this.position.max - this.position.actual) * this.area2 + this.volumeMin;
+    let volume1 = 100*this.position.actual * this.area1 + this.volumeMin;
+    let volume2 = 100*(this.position.max - this.position.actual) * this.area2 + this.volumeMin;
     
     // Compute node1 flow
     let dpress = node1.pressure - this.pressure1;
@@ -1341,7 +1377,6 @@ class Cylinder2 extends ComponentBase {
 
     node1.pressure -= (k1_p1 + 2*k2_p1 + 2*k3_p1 + k4_p1) / 6;   
     this.n1 += (k1_p2 + 2*k2_p2 + 2*k3_p2 + k4_p2) / 6;
-    
     
     // Compute node2 flow
     dpress = node2.pressure - this.pressure2;
@@ -1372,13 +1407,37 @@ class Cylinder2 extends ComponentBase {
     if (this.n1 === 0) this.n1 = this.pressure1 * volume1;
     if (this.n2 === 0) this.n2 = this.pressure2 * volume2;
     
-    this.pressure1 = this.n1 / volume1;
-    this.pressure2 = this.n2 / volume2;
-    let force1 = this.pressure1 * this.area1; // kgf
-    let force2 = this.pressure2 * this.area2 + airPressure * this.areaPiston; // kgf
-    let netForce = force1 - force2 - this.frictionForce*Math.sign(this.speed);
-    this.speed += dt * netForce * 9.8 / this.pistonMass;
-    this.position.actual += dt * this.speed;
+    
+    for(let i = 0; i < 10; i++) {
+      volume1 = 100*this.position.actual * this.area1 + this.volumeMin;
+      volume2 = 100*(this.position.max - this.position.actual) * this.area2 + this.volumeMin;
+
+      this.pressure1 = this.n1 / volume1;
+      this.pressure2 = this.n2 / volume2;
+      let force1 = this.pressure1 * this.area1; // kgf
+      let force2 = this.pressure2 * this.area2 + airPressure * this.areaRod; // kgf
+      let netForce = force1 - force2 - this.frictionForce*Math.sign(this.speed);
+      
+      if (this.speed === 0) {
+        if (Math.abs(netForce) > this.frictionStatic)
+          netForce -= this.frictionForce*Math.sign(netForce);
+        else
+          netForce = 0;
+        this.speed = 0.1*dt * netForce * 9.8 / this.pistonMass;
+      }
+      else {
+        netForce -= this.frictionForce*Math.sign(this.speed);
+        const dspeed = 0.1*dt * netForce * 9.8 / this.pistonMass;
+        if (Math.sign(dspeed) !== Math.sign(this.speed) && 
+          Math.abs(dspeed) > Math.abs(this.speed)) {
+          this.speed = 0;
+        }
+        else {
+          this.speed += dspeed;
+        }
+      }
+      this.position.actual += 0.1*dt * this.speed;
+    }
 
     // Stop at begining and end. Shift piston image
     if (this.position.actual)

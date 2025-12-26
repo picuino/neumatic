@@ -1,18 +1,45 @@
 TO-DO
 =====
-* Ver posición del cursor en todas las ocasiones.
+* Añadir traducción de textos.
 
-* Añadir reset de la simulación para que todo vuelva al estado inicial.
-
-* Añadir simulación por pasos.
-
-* Añadir editar el esquema mientras se simula.
+* Añadir editar/modificar el esquema mientras se simula.
 
 * Añadir visualizar flujo de aire en las tuberías.
 
 * Añadir opción de esquemas de ejemplo.
 
 * Seleccionar conjunto de componentes y mover la selección.
+
+* Tutorial de neumática más completo que el que hay ahora y adaptado a
+  este simulador.
+
+* Modificar válvulas de Normalmente Cerradas a Normalmente Abiertas.
+
+* Mejorar el interface en pantallas táctiles como el móvil.
+
+* Añadir opción al menú que muestre si existen componentes guardados
+  por el profesor (con timestamp = 1000000000).
+  
+* Añadir al menú enlaces a esquemas de ejemplo.
+
+
+
+26/12/2025
+----------
+* Publicada versión 2.0
+
+* Añadir simulación por pasos (con letra 's' también).
+
+* Añadir al menú File cambiar a pantalla completa / quitar pantalla completa.
+
+* Flujos de aire simulados por cambio de masa de aire con Runge-Kutta 4.
+
+* Añadir editar la válvula de flujo para cambiar su conductividad.
+
+* Ver posición del cursor en todas las ocasiones.
+
+* Añadir reset de la simulación para que todo vuelva al estado inicial.
+
 
 23/12/2025
 ----------

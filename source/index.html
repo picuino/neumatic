@@ -1032,7 +1032,7 @@ class ValveNret extends ComponentBase {
       ctx.moveTo(this.x, this.y-32);
       ctx.lineTo(this.x, this.y-40);
       ctx.stroke();
-      
+
       ctx.strokeStyle = defaultColor;
       ctx.beginPath();
       ctx.arc(this.x,this.y-26, 6, 0, Math.PI*2);
@@ -1044,7 +1044,7 @@ class ValveNret extends ComponentBase {
       ctx.moveTo(this.x, this.y-36);
       ctx.lineTo(this.x, this.y-40);
       ctx.stroke();
-      
+
       ctx.strokeStyle = defaultColor;
       ctx.beginPath();
       ctx.arc(this.x,this.y-30, 6, 0, Math.PI*2);
@@ -2398,7 +2398,7 @@ class Valve52p extends ComponentBase {
 
     posX -= 60;
 
-    ctx.strokeStyle = this.color6;    
+    ctx.strokeStyle = this.color6;
     ctx.beginPath();
     ctx.moveTo(posX-44, this.y-20);
     ctx.lineTo(this.x-110, this.y-20);
@@ -3006,7 +3006,7 @@ function simulationRender(ms) {
   if (ms - simulationTime > 50) {
     simulationTime = ms - 50;
   }
-  
+
   // Ejecutar tantos pasos de 1 ms como quepan en el tiempo acumulado
   while (simulationTime < ms) {
     engine.render(0.001);
@@ -3022,7 +3022,7 @@ function simulationRender(ms) {
 
   // Aquí solo dibujas el estado actual (una vez por frame)
   renderer.draw();
-  
+
   if (animationID) {
     requestAnimationFrame(simulationRender);
   }

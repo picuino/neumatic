@@ -331,7 +331,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.0';
+const programVersion = '2.1';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -656,6 +656,7 @@ class ComponentBase {
   drawRectangle(ctx, init_x, init_y, end_x, end_y, color=defaultColor) {
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
+    ctx.beginPath();
     ctx.strokeRect(init_x, init_y, end_x-init_x, end_y-init_y);
     ctx.stroke();
   }
@@ -988,7 +989,6 @@ class ValveNret extends ComponentBase {
     ctx.lineTo(this.x+10, this.y-25);
     ctx.stroke();
 
-    ctx.beginPath();
     if (this.active === false) {
       ctx.strokeStyle = this.color1;
       ctx.beginPath();
@@ -1281,9 +1281,9 @@ class ValveAnd extends ComponentBase {
     ctx.fillStyle = this.color1w;
     ctx.fillRect(this.x-30, this.y+17, 14, 26);
     ctx.fillStyle = this.color2w;
-    ctx.fillRect(this.x+16, this.y+17, 14, 26);
+    ctx.fillRect(this.x+14, this.y+17, 15, 26);
     ctx.fillStyle = this.color3w;
-    ctx.fillRect(this.x-15, this.y+17, 30, 26);
+    ctx.fillRect(this.x-16, this.y+17, 32, 26);
   }
 
   drawValveAnd(ctx) {
@@ -1684,7 +1684,7 @@ class Cylinder2 extends ComponentBase {
 
     // Set colors
     this.color1 = this.colorPressure(node1.pressure);
-    this.color1 = this.colorPressure(node2.pressure);
+    this.color2 = this.colorPressure(node2.pressure);
     this.color1w = this.colorPressure(node1.pressure, 1);
     this.color2w = this.colorPressure(node2.pressure, 1);
   }
@@ -2386,6 +2386,7 @@ class Valve52p extends ComponentBase {
     ctx.lineTo(this.x+110, this.y-20);
     ctx.stroke();
 
+    // Pneumatic right pilot
     this.drawRectangle(ctx, posX+30, this.y-27, posX+44, this.y-13, this.color7);
     ctx.beginPath();
     ctx.moveTo(posX+44, this.y-27);
@@ -2396,12 +2397,14 @@ class Valve52p extends ComponentBase {
     this.drawRectangle(ctx, posX-30, this.y-40, posX+30, this.y-10);
 
     posX -= 60;
+
     ctx.strokeStyle = this.color6;    
     ctx.beginPath();
     ctx.moveTo(posX-44, this.y-20);
     ctx.lineTo(this.x-110, this.y-20);
     ctx.stroke();
 
+    // Pneumatic left pilot
     this.drawRectangle(ctx, posX-30, this.y-27, posX-44, this.y-13, this.color6);
     ctx.beginPath();
     ctx.moveTo(posX-44, this.y-27);

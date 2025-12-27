@@ -357,6 +357,7 @@ let globalLang = null;
 let mousePosition = null;
 let stepTime = null;
 let simulationActive = false;
+let activateValvesTouchingBody = true;
 
 /*************************************************************************/
 
@@ -595,6 +596,7 @@ class ComponentBase {
         pos.y >= minY && pos.y <= maxY) {
       return true;
     }
+    return false;
   }
 
   draw(ctx){
@@ -1058,7 +1060,7 @@ class ValveOr extends ComponentBase {
   constructor(pos) {
     super(pos);
     this.type = 'ValveOr';
-    this.shift = 0;
+    this.shift = 14;
     this.maxShift = 28;
     this.conductance = conductanceBase;
   }
@@ -1071,7 +1073,7 @@ class ValveOr extends ComponentBase {
   }
 
   reset () {
-    this.shift = 0;
+    this.shift = this.maxShift*0.5;
   }
 
   update(engine, dt) {
@@ -1080,16 +1082,17 @@ class ValveOr extends ComponentBase {
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
 
-    if (this.shift === this.maxShift) {
+    if (this.shift !== this.maxShift) {
+      this.computeFlow(node2, node3, this.conductance, dt);
+    }
+    if (this.shift !== 0) {
       this.computeFlow(node1, node3, this.conductance, dt);
     }
-    if (this.shift === 0) {
-      this.computeFlow(node1, node3, this.conductance, dt);
-    }
-    if (this.shift === 0 && node1.pressure > node2.pressure + 0.1) {
+
+    if (this.shift !== this.maxShift && node1.pressure > node2.pressure + 0.1) {
       this.shift = this.maxShift;
     }
-    if (this.shift === this.maxShift && node2.pressure > node1.pressure + 0.1) {
+    if (this.shift !== 0 && node2.pressure > node1.pressure + 0.1) {
       this.shift = 0;
     }
   }
@@ -1149,7 +1152,7 @@ class ValveAnd extends ComponentBase {
   }
 
   reset () {
-    this.shift = 4;
+    this.shift = maxShift * 0.5;
   }
 
   update(engine, dt) {
@@ -1158,12 +1161,17 @@ class ValveAnd extends ComponentBase {
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
 
-    if (node1.pressure > node2.pressure + 0.1) {
+    if (this.shift !== this.maxShift) {
+      this.computeFlow(node1, node3, this.conductance, dt);
+    }
+    if (this.shift !== 0) {
       this.computeFlow(node2, node3, this.conductance, dt);
+    }
+
+    if (node1.pressure > node2.pressure + 0.1) {
       this.shift = this.maxShift;
     }
     if (node2.pressure > node1.pressure + 0.1) {
-      this.computeFlow(node1, node3, this.conductance, dt);
       this.shift = 0;
     }
   }
@@ -1653,8 +1661,12 @@ class Valve22m extends ComponentBase {
   }
 
   nearPushButton(pos) {
-    return this.nearRect(this.x-65+this.shift.pos, this.y-35,
-                         this.x-45+this.shift.pos, this.y-15, pos);
+    if (this.nearRect(this.x-65+this.shift.pos, this.y-35,
+                      this.x-45+this.shift.pos, this.y-15, pos))
+      return true;
+    if (activateValvesTouchingBody)
+      return this.near(pos);
+    return false;
   }
 
   draw(ctx) {
@@ -1736,7 +1748,12 @@ class Valve32m extends ComponentBase {
   }
 
   nearPushButton(pos) {
-    return this.nearRect(this.x-70+this.shift.pos, this.y-35, this.x-50+this.shift.pos, this.y-15, pos);
+    if (this.nearRect(this.x-70+this.shift.pos, this.y-35,
+                      this.x-50+this.shift.pos, this.y-15, pos))
+      return true;
+    if (activateValvesTouchingBody)
+      return this.near(pos);
+    return false;
   }
 
   draw(ctx) {
@@ -2002,7 +2019,12 @@ class Valve52m extends ComponentBase {
   }
 
   nearPushButton(pos) {
-    return this.nearRect(this.x-110+this.shift.pos, this.y-35, this.x-90+this.shift.pos, this.y-15, pos);
+    if (this.nearRect(this.x-110+this.shift.pos, this.y-35,
+                      this.x-90+this.shift.pos, this.y-15, pos))
+      return true;
+    if (activateValvesTouchingBody)
+      return this.near(pos);
+    return false;
   }
 
   draw(ctx) {

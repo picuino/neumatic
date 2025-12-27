@@ -18,15 +18,21 @@ TO-DO
 * Añadir opción al menú que muestre si existen componentes guardados
   por el profesor (con timestamp = 1000000000).
   
-* Añadir al menú enlaces a esquemas de ejemplo.
 
+27/12/2025
+----------
+* Adaptar tutorial de neumática al simulador.
+
+* Mover las válvulas manuales clicando sobre su cuerpo.
+
+* Corregidos errores de funcionamiento en válvulas OR y AND.
 
 
 26/12/2025
 ----------
 * Justificar a la derecha las coordenadas x, y del ratón en pantalla.
 
-* Añadir opción de esquemas de ejemplo.
+* Añadir opción de esquemas de ejemplo con enlaces en el menú.
 
 * Publicada versión 2.0
 

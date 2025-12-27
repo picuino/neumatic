@@ -605,12 +605,12 @@ class ComponentBase {
   drawPort(ctx, pos_x, pos_y, size_x, size_y, color=defaultColor) {
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.fillRect(pos_x-lineWidth, pos_y-lineWidth, lineWidth*2, lineWidth*2);
     ctx.beginPath();
     ctx.moveTo(pos_x, pos_y);
     ctx.lineTo(pos_x+size_x, pos_y+size_y);
     ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.fillRect(pos_x-lineWidth, pos_y-lineWidth, lineWidth*2, lineWidth*2);
   }
 
   drawArrow(ctx, init_x, init_y, end_x, end_y, color=defaultColor) {
@@ -968,7 +968,6 @@ class ValveNret extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x, this.y-50, 0, 10, this.color2);
     if (this.options.flipped) {
@@ -1091,7 +1090,6 @@ class ValveFlow extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
     this.drawPort(ctx, this.x, this.y-50, 0, 10, this.color);
     this.drawValveFlow(ctx);
@@ -1172,7 +1170,6 @@ class ValveOr extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x-40, this.y+30, 12, 0, this.color1);
     this.drawPort(ctx, this.x+40, this.y+30, -12, 0, this.color2);
     this.drawPort(ctx, this.x, this.y, 0, 17, this.color3);
@@ -1272,7 +1269,6 @@ class ValveAnd extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x-40, this.y+30, 10, 0, this.color1);
     this.drawPort(ctx, this.x+40, this.y+30, -10, 0, this.color2);
     this.drawPort(ctx, this.x, this.y, 0, 17, this.color3);
@@ -1493,7 +1489,6 @@ class Cylinder1 extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPressure(ctx, this.x-5, this.y-40);
     this.drawRectangle(ctx, this.x-5, this.y-40, this.x+115, this.y-10);
@@ -1700,7 +1695,6 @@ class Cylinder2 extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x+110, this.y, 0, -10, this.color2);
     this.drawPressure1(ctx);
@@ -1797,7 +1791,6 @@ class Valve22m extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x, this.y-50, 0, 10, this.color2);
     this.drawBody(ctx, this.shift.pos);
@@ -1812,9 +1805,9 @@ class Valve22m extends ComponentBase {
       this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth);
     }
     else {
+      this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth, this.color1);
       this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
       this.drawTap(ctx, posX, this.y-40, posX, this.y-30);
-      this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth, this.color1);
     }
 
     this.drawRectangle(ctx, posX-45, this.y-10, posX-15, this.y-40);
@@ -1900,7 +1893,6 @@ class Valve32m extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x, this.y-50, 0, 10, this.color2);
     this.drawPort(ctx, this.x+20, this.y, 0, -10, this.color3);
@@ -2003,7 +1995,6 @@ class Valve32r extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x, this.y-50, 0, 10, this.color2);
     this.drawPort(ctx, this.x+20, this.y, 0, -10, this.color3);
@@ -2217,7 +2208,6 @@ class Valve52m extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x-20, this.y, 0, -10, this.color2);
     this.drawPort(ctx, this.x+20, this.y, 0, -10, this.color3);
@@ -2237,6 +2227,7 @@ class Valve52m extends ComponentBase {
       this.drawArrow(ctx, posX, this.y-10, posX-20, this.y-40+lineWidth);
       this.drawArrow(ctx, posX+20, this.y-40, posX+20, this.y-10-lineWidth);
       this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20);
+      posX += 60;
     }
     else {
       this.drawArrow(ctx, posX, this.y-10, posX+20, this.y-40+lineWidth);
@@ -2246,11 +2237,13 @@ class Valve52m extends ComponentBase {
       this.drawArrow(ctx, posX, this.y-10, posX-20, this.y-40+lineWidth, this.color1);
       this.drawArrow(ctx, posX+20, this.y-40, posX+20, this.y-10-lineWidth, this.color5);
       this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color2);
+      posX += 60;
     }
 
     this.drawRectangle(ctx, posX-30, this.y-40, posX+30, this.y-10);
-    this.drawRectangle(ctx, posX-30, this.y-40, posX+30, this.y-10);
     this.drawSpring(ctx, posX+30, this.y-20);
+    posX -= 60;
+    this.drawRectangle(ctx, posX-30, this.y-40, posX+30, this.y-10);
     this.drawPushButton(ctx, posX-30, this.y-20);
   }
 }
@@ -2353,7 +2346,6 @@ class Valve52p extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x-20, this.y, 0, -10, this.color2);
     this.drawPort(ctx, this.x+20, this.y, 0, -10, this.color3);
@@ -2395,7 +2387,6 @@ class Valve52p extends ComponentBase {
     ctx.stroke();
 
     this.drawRectangle(ctx, posX+30, this.y-27, posX+44, this.y-13, this.color7);
-    ctx.strokeStyle = this.color7;
     ctx.beginPath();
     ctx.moveTo(posX+44, this.y-27);
     ctx.lineTo(posX+34, this.y-20);
@@ -2412,7 +2403,6 @@ class Valve52p extends ComponentBase {
     ctx.stroke();
 
     this.drawRectangle(ctx, posX-30, this.y-27, posX-44, this.y-13, this.color6);
-    ctx.strokeStyle = this.color6;
     ctx.beginPath();
     ctx.moveTo(posX-44, this.y-27);
     ctx.lineTo(posX-34, this.y-20);
@@ -2526,7 +2516,6 @@ class Renderer{
     ctx.fillText('PICUINO PNEUMATIC SIMULATOR V' + programVersion, 8, 18);
     this.drawPosition(mousePosition);
 
-    ctx.lineWidth = lineWidth;
     for (const comp of this.engine.components) {
       comp.draw(ctx);
     }
@@ -2754,6 +2743,7 @@ class UIController {
       }
       this.renderer.draw();
     }
+    this.renderer.drawPosition(position);
   }
 
   _onMove(e){
@@ -2776,6 +2766,7 @@ class UIController {
       }
       this.renderer.draw();
     }
+    this.renderer.drawPosition(position);
   }
 
   _onUp(e){

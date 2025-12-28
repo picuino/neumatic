@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="keywords" content="Online Pneumatic Simulator Schematic Picuino">
+  <meta name="keywords" content="Online Pneumatic Simulator Schematic Picuino Open-source">
 
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="description" content="Picuino Pneumatic Simulator">
+  <meta name="description" content="Interactive pneumatic circuit simulator designed for secondary school students and teachers. Build, test, and visualize pneumatic systems online. Free, accurate, and ready for classroom use. By Picuino.">
   <title data-i18n="title">Pneumatic Simulator - Picuino</title>
 
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
@@ -226,13 +226,19 @@
             <ul class="submenu">
               <li><a href="./index.html?loadFile=single-22.txt" target="_blank" data-i18n="eSingle01">Valve 2/2</a></li>
               <li><a href="./index.html?loadFile=single-32.txt" target="_blank" data-i18n="eSingle02">Valve 3/2</a></li>
+              <li><a href="./index.html?loadFile=single-32-and.txt" target="_blank" data-i18n="eSingle03">Valve AND</a></li>
+              <li><a href="./index.html?loadFile=single-32-or.txt" target="_blank" data-i18n="eSingle04">Valve OR</a></li>
+              <li><a href="./index.html?loadFile=single-32-x2.txt" target="_blank" data-i18n="eSingle05">Valve 3/2 x2</a></li>
             </ul>
           </li>
 
           <li class="has-submenu">
             <a href="#" data-i18n="doubleMenu">Double</a>
             <ul class="submenu">
-              <li><a href="./index.html?loadFile=double-52-auto.txt" target="_blank" data-i18n="eDouble01">Valve 5/2 + Roller</a></li>
+              <li><a href="./index.html?loadFile=double-32-manual.txt"  target="_blank" data-i18n="eDouble01">Valve 3/2 manual</a></li>
+              <li><a href="./index.html?loadFile=double-52-manual.txt"  target="_blank" data-i18n="eDouble02">Valve 5/2 manual</a></li>
+              <li><a href="./index.html?loadFile=double-52-piloted.txt" target="_blank" data-i18n="eDouble03">Valve 5/2 pneu.</a></li>
+              <li><a href="./index.html?loadFile=double-52-auto.txt"    target="_blank" data-i18n="eDouble04">Valve 5/2 + Roller + Flow</a></li>
             </ul>
           </li>
 
@@ -332,7 +338,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.1';
+const programVersion = '2.2';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -604,6 +610,21 @@ class ComponentBase {
   }
 
   draw(ctx){
+  }
+
+
+  drawPipe(ctx, color=defaultColor) {
+    if (this.selected) color = selectedColor;
+
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.fillRect(this.init.x-lineWidth, this.init.y-lineWidth, lineWidth*2, lineWidth*2);
+    ctx.fillRect(this.end.x-lineWidth, this.end.y-lineWidth, lineWidth*2, lineWidth*2);
+    ctx.moveTo(this.init.x, this.init.y);
+    ctx.lineTo(this.end.x, this.end.y);
+    ctx.stroke();
   }
 
   drawPort(ctx, pos_x, pos_y, size_x, size_y, color=defaultColor) {
@@ -898,15 +919,7 @@ class Pipe extends ComponentBase {
   }
 
   draw(ctx) {
-    ctx.lineWidth = lineWidth;
-    ctx.beginPath();
-    ctx.fillStyle = this.color;
-    ctx.strokeStyle = this.color;
-    ctx.fillRect(this.init.x-lineWidth, this.init.y-lineWidth, lineWidth*2, lineWidth*2);
-    ctx.fillRect(this.end.x-lineWidth, this.end.y-lineWidth, lineWidth*2, lineWidth*2);
-    ctx.moveTo(this.init.x, this.init.y);
-    ctx.lineTo(this.end.x, this.end.y);
-    ctx.stroke();
+    this.drawPipe(ctx, this.color);
   };
 
   serialize(){
@@ -2202,8 +2215,8 @@ class Valve32p extends ComponentBase {
     const via1 = {x:this.x, y:this.y};
     const via2 = {x:this.x, y:this.y-50};
     const via3 = {x:this.x+20, y:this.y};
-    const via4 = {x:this.x-80, y:this.y-20};
-    const via5 = {x:this.x+100, y:this.y-20};
+    const via4 = {x:this.x-70, y:this.y-20};
+    const via5 = {x:this.x+90, y:this.y-20};
     return [via1, via2, via3, via4, via5];
   }
 
@@ -2278,8 +2291,8 @@ class Valve32p extends ComponentBase {
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPort(ctx, this.x, this.y-50, 0, 10, this.color2);
     this.drawPort(ctx, this.x+20, this.y, 0, -10, this.color3);
-    this.drawPort(ctx, this.x-80, this.y-20, 10, 0, this.color4);
-    this.drawPort(ctx, this.x+100, this.y-20, -10, 0, this.color5);
+    this.drawPort(ctx, this.x-70, this.y-20, 5, 0, this.color4);
+    this.drawPort(ctx, this.x+90, this.y-20, -5, 0, this.color5);
     this.drawBody(ctx, this.shift.pos);
   }
 
@@ -2301,8 +2314,8 @@ class Valve32p extends ComponentBase {
         this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth, this.color3);
         this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20, this.color1);
       }
-      this.drawPneuLeftPilot(ctx, posX-20, -70, this.color4);
-      this.drawPneuRightPilot(ctx, posX, 90, this.color5);
+      this.drawPneuLeftPilot(ctx, posX-20, -65, this.color4);
+      this.drawPneuRightPilot(ctx, posX, 85, this.color5);
       
     }
     else {
@@ -2320,8 +2333,8 @@ class Valve32p extends ComponentBase {
         this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth, this.color1);
         this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color3);
       }
-      this.drawPneuLeftPilot(ctx, posX-20, -70, this.color4);
-      this.drawPneuRightPilot(ctx, posX, 90, this.color5);
+      this.drawPneuLeftPilot(ctx, posX-20, -65, this.color4);
+      this.drawPneuRightPilot(ctx, posX, 85, this.color5);
     }
 
     this.drawRectangle(ctx, posX-10, this.y-10, posX+30, this.y-40);

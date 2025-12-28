@@ -1,13 +1,7 @@
 TO-DO
 =====
-* Añadir válvula 3/2 pilotada neumáticamente y con flip, para poder hacer
-  el método paso a paso.
   
 * Añadir visualización de la gráfica de movimiento de los cilindros.
-
-* Añadir color rojo a las tuberías con presión.
-
-* Cambiar el color con sqrt(pressure)
 
 * Tutorial de neumática más completo que el que hay ahora y adaptado a
   este simulador.
@@ -16,13 +10,25 @@ TO-DO
 
 * Añadir editar/modificar el esquema mientras se simula.
 
-* Añadir visualizar flujo de aire en las tuberías.
+* Añadir visualizar flujo de aire en las tuberías con puntos móviles.
 
 * Seleccionar conjunto de componentes y mover la selección.
 
 * Modificar válvulas de Normalmente Cerradas a Normalmente Abiertas.
 
 * Mejorar el interface en pantallas táctiles como el móvil.
+
+
+28/12/2025
+----------
+* Añadir válvula 3/2 pilotada neumáticamente y con flip, para poder hacer
+  el método paso a paso.
+
+* Corregir que los componentes aparezcan con color azul mientras se están
+  moviendo.
+
+* Cambiar el color con sqrt(pressure). 
+  El aspecto final es peor, se deshace el cambio.
 
 
 27/12/2025

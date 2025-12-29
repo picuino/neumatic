@@ -22,6 +22,11 @@ TO-DO
 ---------
 * Publicar versión 2.3
 
+* Añadir voltear de Normalmente Cerrada a Normalmente Abierta en
+  Válvula 2/2 manual, Válvula 3/2 manual, Válvula 3/2 por rodillo.
+
+* Cambiar color de la presión a color azul.
+
 * Añadir comparación de ficheros para detectar copias.
 
 

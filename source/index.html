@@ -263,6 +263,7 @@
           <li><a href="#" data-action="eDelete" data-i18n="eDelete">Delete</a></li>
           <li><a href="#" data-action="eMove"   data-i18n="eMove">Move</a></li>
           <li><a href="#" data-action="eModify" data-i18n="eModify">Modify</a></li>
+          <li><a href="#" data-action="eFlip" data-i18n="eFlip">Flip</a></li>
         </ul>
       </li>
 
@@ -433,6 +434,7 @@ const translations = {
     eDelete: 'Delete',
     eMove: 'Move',
     eModify: 'Modify',
+    eFlip: 'Flip',
     simulateMenu: 'Simulate',
     sInit: 'Init',
     sStep: "Step 's'",
@@ -486,6 +488,7 @@ const translations = {
     eDelete: 'Borrar',
     eMove: 'Mover',
     eModify: 'Modificar',
+    eFlip: 'Voltear',    
     simulateMenu: 'Simular',
     sInit: 'Iniciar',
     sStep: "Paso 's'",
@@ -563,6 +566,7 @@ document.addEventListener("click", (e) => {
     eDelete: () => { simulationStop(); drawMode='Delete'; },
     eMove: () => { simulationStop(); drawMode='Move'; },
     eModify: () => { simulationStop(); drawMode='Modify'; },
+    eFlip: () => { simulationStop(); drawMode='Flip'; },
 
     sInit: () => { simulationInit(); },
     sStep: () => { simulationStep(); },
@@ -814,11 +818,11 @@ class ComponentBase {
   colorPressure(pressure, bg = 0) {
     let cp = Math.round(255 * ((pressure - airPressure) / (compressorPressure - airPressure)));
     if (bg === 0) {
-      return 'rgb(' + cp + ',' + 0 + ',' + 0 + ')';
+      return 'rgb(' + 0 + ',' + 0 + ',' + cp + ')';
     }
     else {
       cp = 255 - cp;
-      return 'rgb(' + 255 + ',' + cp + ',' + cp + ')';
+      return 'rgb(' + cp + ',' + cp + ',' + 255 + ')';
     }
   }
 
@@ -968,7 +972,7 @@ class Compressor extends ComponentBase {
     const node = engine.findNode(via1);
     node.pressure = this.pressure;
     node.mass = node.pressure * node.volume;
-    this.color = '#f00';
+    this.color = this.colorPressure(this.pressure);
   }
 
   near(pos) {
@@ -1813,10 +1817,13 @@ class Valve22m extends ComponentBase {
       max: 30,
       pos: 0,
       speed: 200,
-    }
+    };
     this.conductance = conductanceBase;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
+    this.options = {
+      flipped: false,
+    };
   }
 
   vias() {
@@ -1830,16 +1837,28 @@ class Valve22m extends ComponentBase {
     this.color1 = defaultColor;
     this.color2 = defaultColor;
   }
-
+  
+  flip() {
+    if (this.options.flipped) this.options.flipped = false;
+    else this.options.flipped = true;
+  }
+  
   update(ctx, engine, dt) {
     const [via1, via2] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-
-    if (this.shift.pos === this.shift.max) {
-      this.computeFlow(node1, node2, this.conductance, dt);
+    
+    if (this.options.flipped) {
+      if (this.shift.pos === this.shift.min) {
+        this.computeFlow(node1, node2, this.conductance, dt);
+      }
     }
-
+    else {
+      if (this.shift.pos === this.shift.max) {
+        this.computeFlow(node1, node2, this.conductance, dt);
+      }
+    }
+    
     if (this.active) {
        if (this.shift.pos < this.shift.max)
          this.shift.pos += dt * this.shift.speed;
@@ -1880,17 +1899,31 @@ class Valve22m extends ComponentBase {
   drawBody(ctx, shift) {
     let posX = this.x + shift;
 
-    if (shift === this.shift.min) {
-      this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
-      this.drawTap(ctx, posX, this.y-40, posX, this.y-30, this.color2);
-      this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth);
+    if (this.options.flipped) {
+      if (shift === this.shift.min) {
+        this.drawTap(ctx, posX-30, this.y-10, posX-30, this.y-20);
+        this.drawTap(ctx, posX-30, this.y-40, posX-30, this.y-30);
+        this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth, this.color1);
+      }
+      else {
+        this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth);
+        this.drawTap(ctx, posX-30, this.y-10, posX-30, this.y-20, this.color1);
+        this.drawTap(ctx, posX-30, this.y-40, posX-30, this.y-30, this.color2);
+      }
     }
     else {
-      this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth, this.color1);
-      this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
-      this.drawTap(ctx, posX, this.y-40, posX, this.y-30);
+      if (shift === this.shift.min) {
+        this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
+        this.drawTap(ctx, posX, this.y-40, posX, this.y-30, this.color2);
+        this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth);
+      }
+      else {
+        this.drawArrow(ctx, posX-30, this.y-10, posX-30, this.y-40+lineWidth, this.color1);
+        this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
+        this.drawTap(ctx, posX, this.y-40, posX, this.y-30);
+      }
     }
-
+    
     this.drawRectangle(ctx, posX-45, this.y-10, posX-15, this.y-40);
     this.drawRectangle(ctx, posX-15, this.y-10, posX+15, this.y-40);
     this.drawSpring(ctx, posX+15, this.y-20);
@@ -1908,12 +1941,15 @@ class Valve32m extends ComponentBase {
       max: 40,
       pos: 0,
       speed: 200,
-    }
+    };
     this.conductance = conductanceBase;
     this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
+    this.options = {
+      flipped: false,
+    };
   }
 
   vias() {
@@ -1929,18 +1965,36 @@ class Valve32m extends ComponentBase {
     this.color2 = defaultColor;
     this.color3 = defaultColor;
   }
-
+  
+  flip() {
+    if (this.options.flipped) this.options.flipped = false;
+    else this.options.flipped = true;
+  }
+  
   update(ctx, engine, dt) {
     const [via1, via2, via3] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
-    if (this.shift.pos === this.shift.min) {
-      this.computeFlow(node2, node3, this.conductance, dt);
+    
+    if (this.options.flipped) {
+      if (this.shift.pos === this.shift.min) {
+        this.computeFlow(node1, node2, this.conductance, dt);
+      }
+      if (this.shift.pos === this.shift.max) {
+        this.computeFlow(node2, node3, this.conductance, dt);
+      }
     }
-    if (this.shift.pos === this.shift.max) {
-      this.computeFlow(node1, node2, this.conductance, dt);
+    else {
+      if (this.shift.pos === this.shift.min) {
+        this.computeFlow(node2, node3, this.conductance, dt);
+      }
+      if (this.shift.pos === this.shift.max) {
+        this.computeFlow(node1, node2, this.conductance, dt);
+      }
     }
+
+    // Move the valve body
     if (this.active) {
        if (this.shift.pos < this.shift.max)
          this.shift.pos += dt * this.shift.speed;
@@ -1983,19 +2037,37 @@ class Valve32m extends ComponentBase {
   drawBody(ctx, shift) {
     let posX = this.x + shift;
 
-    if (shift === this.shift.min) {
-      this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth, this.color2);
-      this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
+    if (this.options.flipped) {
+      if (shift === this.shift.min) {
+        this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth, this.color1);
+        this.drawTap(ctx, posX+20, this.y-10, posX+20, this.y-20, this.color3);
 
-      this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth);
-      this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20);
+        this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth);
+        this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20);
+      }
+      else {
+        this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth);
+        this.drawTap(ctx, posX+20, this.y-10, posX+20, this.y-20);
+
+        this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth, this.color3);
+        this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20, this.color1);
+      }
     }
     else {
-      this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth);
-      this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
+      if (shift === this.shift.min) {
+        this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth, this.color2);
+        this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
 
-      this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth, this.color1);
-      this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color3);
+        this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth);
+        this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20);
+      }
+      else {
+        this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth);
+        this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
+
+        this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth, this.color1);
+        this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color3);
+      }
     }
 
     this.drawRectangle(ctx, posX-10, this.y-10, posX+30, this.y-40);
@@ -2015,7 +2087,7 @@ class Valve32r extends ComponentBase {
       max: 40,
       pos: 0,
       speed: 200,
-    }
+    };
     this.conductance = conductanceBase;
     this.active = false;
     this.color = '#000';
@@ -2025,6 +2097,9 @@ class Valve32r extends ComponentBase {
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
+    this.options = {
+      flipped: false,
+    };
   }
 
   vias() {
@@ -2040,18 +2115,36 @@ class Valve32r extends ComponentBase {
     this.color2 = defaultColor;
     this.color3 = defaultColor;
   }
-
+  
+  flip() {
+    if (this.options.flipped) this.options.flipped = false;
+    else this.options.flipped = true;
+  }
+  
   update(ctx, engine, dt) {
     const [via1, via2, via3] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
     const node3 = engine.findNode(via3);
-    if (this.shift.pos === this.shift.min) {
-      this.computeFlow(node2, node3, this.conductance, dt);
+
+    if (this.options.flipped) {
+      if (this.shift.pos === this.shift.min) {
+        this.computeFlow(node1, node2, this.conductance, dt);
+      }
+      if (this.shift.pos === this.shift.max) {
+        this.computeFlow(node2, node3, this.conductance, dt);
+      }
     }
-    if (this.shift.pos === this.shift.max) {
-      this.computeFlow(node1, node2, this.conductance, dt);
+    else {
+      if (this.shift.pos === this.shift.min) {
+        this.computeFlow(node2, node3, this.conductance, dt);
+      }
+      if (this.shift.pos === this.shift.max) {
+        this.computeFlow(node1, node2, this.conductance, dt);
+      }
     }
+
+    // Move the valve body
     if (this.active) {
        if (this.shift.pos < this.shift.max)
          this.shift.pos += dt * this.shift.speed;
@@ -2085,20 +2178,37 @@ class Valve32r extends ComponentBase {
   drawBody(ctx, shift) {
     let posX = this.x + shift;
 
+    if (this.options.flipped) {
+      if (shift === this.shift.min) {
+        this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth, this.color1);
+        this.drawTap(ctx, posX+20, this.y-10, posX+20, this.y-20, this.color3);
 
-    if (shift === this.shift.min) {
-      this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth, this.color2);
-      this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
+        this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth);
+        this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20);
+      }
+      else {
+        this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth);
+        this.drawTap(ctx, posX+20, this.y-10, posX+20, this.y-20);
 
-      this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth);
-      this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20);
+        this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth, this.color3);
+        this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20, this.color1);
+      }
     }
     else {
-      this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth);
-      this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
+      if (shift === this.shift.min) {
+        this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth, this.color2);
+        this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
 
-      this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth, this.color1);
-      this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color3);
+        this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth);
+        this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20);
+      }
+      else {
+        this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth);
+        this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
+
+        this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth, this.color1);
+        this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color3);
+      }
     }
 
     this.drawRectangle(ctx, posX-10, this.y-10, posX+30, this.y-40);
@@ -2211,7 +2321,7 @@ class Valve32p extends ComponentBase {
       max: 40,
       pos: 0,
       speed: 200,
-    }
+    };
     this.conductance = conductanceBase;
     this.active = false;
     this.color1 = defaultColor;
@@ -2221,7 +2331,7 @@ class Valve32p extends ComponentBase {
     this.color5 = defaultColor;
     this.options = {
       flipped: false,
-    }
+    };
   }
 
   flip() {
@@ -2370,7 +2480,7 @@ class Valve52m extends ComponentBase {
       max: 60,
       pos: 0,
       speed: 200,
-    }
+    };
     this.conductance = conductanceBase;
     this.active = false;
     this.color1 = defaultColor;
@@ -2498,7 +2608,7 @@ class Valve52p extends ComponentBase {
       max: 60,
       pos: 0,
       speed: 200,
-    }
+    };
     this.conductance = conductanceBase;
     this.active = false;
     this.color = '#000';
@@ -2849,8 +2959,17 @@ class UIController {
             textPromptAssign('reference', 'Reference:');
             break;
           }
+        }
+      }
+      this.renderer.draw();
+    }
 
-          if (['ValveNret', 'Valve32p'].includes(comp.type)) {
+    // Flip component mode
+    if (drawMode === 'Flip') {
+      for (const comp of this.engine.components) {
+        if (comp.near(position)) {
+          if (['ValveNret', 'Valve22m', 'Valve32m', 'Valve32r', 
+               'Valve32p'].includes(comp.type)) {
             comp.flip();
             break;
           }
@@ -2858,6 +2977,7 @@ class UIController {
       }
       this.renderer.draw();
     }
+
 
     // Delete component mode
     if (drawMode === 'Delete') {
@@ -3109,6 +3229,7 @@ async function openSchema() {
     components = loadSchema(schematic);
     if (components) {
       engine.components = components;
+      engine.createNodes();
       renderer.draw();
     }
   };
@@ -3124,9 +3245,13 @@ async function openFile(filename) {
     if (!answer.ok) {
       throw new Error("Could not read the file");
     }
-    const data = await answer.text();
-    loadSchema(data);
-    engine.createNodes();
+    const schematic = await answer.text();
+    components = loadSchema(schematic);
+    if (components) {
+      engine.components = components;
+      engine.createNodes();
+      renderer.draw();
+    }
   } catch (error) {
     console.error("Error:", error);
   }

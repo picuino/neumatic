@@ -1,8 +1,6 @@
 TO-DO
 =====
-* Corregir reiniciar para que reinicie aunque esté la simulación en curso.
-
-* Añadir visualización de la gráfica de movimiento de los cilindros.
+* Añadir visualización de la gráfica del movimiento de los cilindros.
 
 * Tutorial de neumática más completo que el que hay ahora y adaptado a
   este simulador.
@@ -20,9 +18,18 @@ TO-DO
 * Mejorar el interface en pantallas táctiles como el móvil.
 
 
+29/12/2025
+---------
+* Publicar versión 2.3
+
+* Añadir comparación de ficheros para detectar copias.
+
+
 28/12/2025
 ----------
 * Publicar versión 2.2
+
+* Corregir reiniciar para que reinicie aunque esté la simulación en curso.
 
 * Corregir tubería de color azul mientras se mueven sus extremos al editar.
 
@@ -32,7 +39,7 @@ TO-DO
 * Corregir que los componentes aparezcan con color azul mientras se están
   moviendo.
 
-* Cambiar el color con sqrt(pressure). 
+* Cambiar el color con sqrt(pressure).
   El aspecto final es peor, se deshace el cambio.
 
 
@@ -41,8 +48,8 @@ TO-DO
 * Colorear de rojo durante la simulación todas las tuberías, vías y
   elementos con presión.
 
-* Añadir opción que muestre con un cuadrado verde a la derecha, 
-  si existen componentes guardados por el profesor 
+* Añadir opción que muestre con un cuadrado verde a la derecha,
+  si existen componentes guardados por el profesor
   (con timestamp <= 1900000000).
 
 * Adaptar tutorial de neumática al simulador.

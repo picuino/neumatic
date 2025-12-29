@@ -103,7 +103,7 @@
     padding-left: 8px;
   }
 
-  .submenu.activo {
+  .submenu.active {
     display: block;
   }
 
@@ -134,6 +134,10 @@
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+  
+  ul {
+    padding-left: 15px;
   }
   </style>
 </head>
@@ -169,6 +173,7 @@
           </li>
 
           <li><a href="#" data-action="fSavePNG" data-i18n="fSavePNG">Save Image</a></li>
+          <li><a href="#" data-action="fCompare" data-i18n="fCompare">Compare Files</a></li>
 
           <li><a href="#" data-action="fAbout" data-i18n="fAbout">About...</a></li>
         </ul>
@@ -245,7 +250,7 @@
           <li class="has-submenu">
             <a href="#" data-i18n="multipleMenu">Multiple</a>
             <ul class="submenu">
-              <!-- <li><a href="./index.html?loadFile=single-22.txt" target="_blank" data-i18n="eSingle01">Valve 5/2 + Roller</a></li> -->
+
             </ul>
           </li>
 
@@ -282,11 +287,23 @@
       <p id="messageInput">Texto:</p>
       <input type="text" name="answer" id="textInput" placeholder="Text...">
       <div style="margin-top: 16px;">
-        <button id="confirmBtn" value="default">Aceptar</button>
-        <button id="cancelBtn" value="cancel" formnovalidate>Cancelar</button>
+        <button id="confirmBtn" value="default">Accept</button>
+        <button id="cancelBtn" value="cancel" formnovalidate>Cancel</button>
       </div>
     </form>
   </dialog>
+
+
+  <dialog id="compareWindow">
+    <h1 data-i18n="compareWindowTitle">Pneumatic Schematic Comparison Tool</h1>
+    <input type="file" id="compareFileInput" multiple>
+    <div id="compareResults"></div>
+    <div style="margin-top: 16px;">
+       <button onclick="compareFilesUploaded()" id="compareBtn" data-i18n="compareBtn">Compare Schematics</button>
+       <button onclick="compareWindowClose()" id="compareCloseBtn" data-i18n="compareCloseBtn">Close Window</button>
+    </div>
+  </dialog>
+
 
   <dialog id="aboutWindow">
     <div>
@@ -311,7 +328,7 @@
     along with this program. If not, see
     <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">
     www.gnu.org/licenses/gpl-3.0.html</a>.</p>
-    <button id="closeBtn" data-i18n="closeBtn">Close window</button>
+    <button id="aboutCloseBtn" data-i18n="aboutCloseBtn">Close Window</button>
     </div>
   </dialog>
 
@@ -338,7 +355,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.2';
+const programVersion = '2.3';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -373,7 +390,10 @@ const translations = {
 
   en: {
     title: 'Pneumatic Simulator - Picuino',
-    closeBtn: 'Close window',
+    aboutCloseBtn: 'Close Window',
+    compareCloseBtn: 'Close Window',
+    compareWindowTitle: 'Pneumatic Schematic Comparison Tool',
+    compareBtn: 'Compare Files',
     fileMenu: 'File',
     fSwap: 'Swap Screen',
     fNew: 'New Schematic',
@@ -382,6 +402,7 @@ const translations = {
     fSaveStudent: 'Student',
     fSaveTeacher: 'Teacher',
     fSavePNG: 'Save Image',
+    fCompare: 'Compare Files',
     fAbout: 'About...',
     examplesMenu: 'Examples',
     singleMenu: 'Single',
@@ -422,7 +443,10 @@ const translations = {
 
   es: {
     title: 'Simulador Neumático - Picuino',
-    closeBtn: 'Cerrar ventana',
+    aboutCloseBtn: 'Cerrar Ventana',
+    compareCloseBtn: 'Cerrar Ventana',
+    compareWindowTitle: 'Comparador de Esquemas Neumáticos',
+    compareBtn: 'Comparar Archivos',
     fileMenu: 'Archivo',
     fSwap: 'Cambiar pantalla',
     fNew: 'Nuevo Esquema',
@@ -431,6 +455,7 @@ const translations = {
     fSaveStudent: 'Alumno',
     fSaveTeacher: 'Profesor',
     fSavePNG: 'Guardar Imagen',
+    fCompare: 'Comparar Archivos',
     fAbout: 'Sobre...',
     examplesMenu: 'Ejemplos',
     singleMenu: 'Simple',
@@ -471,22 +496,17 @@ const translations = {
 }
 
 
-/*************************************************************************/
-
-/* Menús y submenus */
+/*************************  MENU  *************************/
 document.addEventListener("click", (e) => {
   const trigger = e.target.closest(".menu-titulo, .has-submenu > a");
 
-  // Click fuera del menú ? cerrar todo
+  // Click out of menu? close all
   if (!trigger) {
     document.querySelectorAll(".submenu").forEach(sm =>
-      sm.classList.remove("activo")
+      sm.classList.remove("active")
     );
     return;
   }
-
-  e.preventDefault();
-  e.stopPropagation();
 
   const submenu = trigger.nextElementSibling;
   if (!submenu || !submenu.classList.contains("submenu")) return;
@@ -496,10 +516,10 @@ document.addEventListener("click", (e) => {
     .querySelectorAll(":scope > li > .submenu");
 
   siblings.forEach(sm => {
-    if (sm !== submenu) sm.classList.remove("activo");
+    if (sm !== submenu) sm.classList.remove("active");
   });
 
-  submenu.classList.toggle("activo");
+  submenu.classList.toggle("active");
 });
 
 
@@ -507,9 +527,6 @@ document.addEventListener("click", (e) => {
 document.addEventListener("click", (e) => {
   const item = e.target.closest("a[data-action]");
   if (!item) return;
-
-  e.preventDefault();
-  e.stopPropagation();
 
   const action = item.dataset.action;
 
@@ -520,6 +537,7 @@ document.addEventListener("click", (e) => {
     fSaveStudent: () => { saveSchema('student'); },
     fSaveTeacher: () => { saveSchema('teacher'); },
     fSavePNG: () => { savePNG(); },
+    fCompare: () => { compareFilesShow(); },
     enLang: () => { enLang(); },
     esLang: () => { esLang(); },
     fAbout: () => { aboutWindowShow(); },
@@ -555,9 +573,9 @@ document.addEventListener("click", (e) => {
 
   actions[action]?.();
 
-  // Cerrar todos los menús tras la acción
+  // Close submenus after action
   document.querySelectorAll(".submenu").forEach(sm =>
-    sm.classList.remove("activo")
+    sm.classList.remove("active")
   );
 });
 
@@ -756,7 +774,7 @@ class ComponentBase {
     ctx.arc(init_x-16, init_y, 1, 0, Math.PI*2);
     ctx.stroke();
   }
-  
+
   drawPneuLeftPilot(ctx, posX, length, color=defaultColor) {
     if (this.selected) color = selectedColor;
 
@@ -787,7 +805,7 @@ class ComponentBase {
     ctx.lineTo(posX+34, this.y-20);
     ctx.lineTo(posX+44, this.y-13);
     ctx.stroke();
-  } 
+  }
 
   update(ctx, engine, dt) {}
 
@@ -2260,7 +2278,7 @@ class Valve32p extends ComponentBase {
         this.computeFlow(node1, node2, this.conductance, dt);
       }
     }
-    
+
     // Move the valve body
     if (this.active) {
        if (this.shift.pos < this.shift.max)
@@ -2298,38 +2316,38 @@ class Valve32p extends ComponentBase {
 
   drawBody(ctx, shift) {
     let posX = this.x + shift;
-    
+
     if (this.options.flipped) {
       if (shift === this.shift.min) {
         this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth, this.color1);
         this.drawTap(ctx, posX+20, this.y-10, posX+20, this.y-20, this.color3);
-      
+
         this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth);
         this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20);
       }
       else {
         this.drawArrow(ctx, posX, this.y-10, posX, this.y-40+lineWidth);
         this.drawTap(ctx, posX+20, this.y-10, posX+20, this.y-20);
-      
+
         this.drawArrow(ctx, posX-40, this.y-40, posX-20, this.y-10-lineWidth, this.color3);
         this.drawTap(ctx, posX-40, this.y-10, posX-40, this.y-20, this.color1);
       }
       this.drawPneuLeftPilot(ctx, posX-20, -65, this.color4);
       this.drawPneuRightPilot(ctx, posX, 85, this.color5);
-      
+
     }
     else {
       if (shift === this.shift.min) {
         this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth, this.color2);
         this.drawTap(ctx, posX, this.y-10, posX, this.y-20, this.color1);
-      
+
         this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth);
         this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20);
       }
       else {
         this.drawArrow(ctx, posX, this.y-40, posX+20, this.y-10-lineWidth);
         this.drawTap(ctx, posX, this.y-10, posX, this.y-20);
-      
+
         this.drawArrow(ctx, posX-40, this.y-10, posX-40, this.y-40+lineWidth, this.color1);
         this.drawTap(ctx, posX-20, this.y-10, posX-20, this.y-20, this.color3);
       }
@@ -3025,6 +3043,9 @@ function swapScreen() {
 }
 
 function aboutWindowShow() {
+  const aboutWindow = document.getElementById('aboutWindow');
+  const aboutWindowTitle = document.querySelector('#aboutWindow h2');
+
   console.log('Picuino Pneumatic Simulator v' + programVersion);
   console.log('Copyright © 2025 Carlos Félix Pardo Martín.');
   aboutWindowTitle.innerHTML = 'Picuino Pneumatic Simulator v' + programVersion;
@@ -3074,8 +3095,7 @@ function loadSchema(schematicJSON) {
       components.push(newcomp);
     }
   }
-  engine.components = components;
-  renderer.draw();
+  return components;
 }
 
 
@@ -3086,7 +3106,11 @@ async function openSchema() {
   input.onchange = async (e) => {
     const file = e.target.files[0];
     const schematic = await file.text();
-    loadSchema(schematic);
+    components = loadSchema(schematic);
+    if (components) {
+      engine.components = components;
+      renderer.draw();
+    }
   };
   input.click();
   engine.createNodes();
@@ -3154,6 +3178,121 @@ function saveSchema(rol) {
   URL.revokeObjectURL(url);
 }
 
+/************************ COMPARE FILES ************************/
+function compareFilesShow() {
+  const compareWindow = document.getElementById('compareWindow');
+  const compareWindowTitle = document.querySelector('#compareFiles h2');
+  compareWindow.showModal();
+}
+
+function compareWindowClose() {
+  const compareWindow = document.getElementById('compareWindow');
+  compareWindow.close();
+}
+
+async function compareFilesUploaded() {
+  const inputFiles = Array.from(document.getElementById('compareFileInput').files);
+  const compareResults = document.getElementById('compareResults');
+
+  const jsons = [];
+  for (const file of inputFiles) {
+    const json = await readJSON(file);
+    jsons.push(json);
+  }
+  detectErrors(inputFiles, jsons);  
+}
+
+function readJSON(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        // Captura errores de formato JSON
+        const data = JSON.parse(reader.result);
+        resolve(data);
+      } catch (err) {
+        resolve([]);
+      }
+    }
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+function testJSON(json) {
+  if (json.length === 0)
+    return false;
+  const footer = json.slice(-1)[0];
+  const hashData = cyrb53(JSON.stringify(json.slice(0, -1)));
+  if (footer.hash !== hashData) {
+    return false;
+  }
+  return true;
+}
+
+function testTeacher(json) {
+  if (json.length === 0)
+    return 0;
+  let comps = 0;
+  for(let i = 1; i < json.length-1; i++) {
+    if (json[i].stamp <= '1900000000') comps++;
+  }
+  return comps;
+}
+
+function detectErrors(files, jsons) {
+  let removeFiles = [];
+  let htmlcode = '';
+  htmlcode = '<hr><p><strong>Corrupted files:</strong></p><ul>';
+  for (let i = 0; i < files.length; i++) {
+    const valid = testJSON(jsons[i]);
+    if (!valid) {
+      htmlcode += `<li>${files[i].name} Corrupted file.</li>`;
+      removeFiles.push(i);
+    }
+  }
+  files = files.filter((_, index) => !removeFiles.includes(index));
+  jsons = jsons.filter((_, index) => !removeFiles.includes(index));
+  
+  htmlcode += '</ul><p><strong>Teacher files:</strong></p><table>';
+  for (let i = 0; i < files.length; i++) {
+    const teacherComps = testTeacher(jsons[i]);
+    if (teacherComps > 0) {
+      htmlcode += `<tr><td>${files[i].name}</td><td>${teacherComps} Teacher Components inside.</td></tr>`;
+      removeFiles.push(i);
+    }
+  }
+  //files = files.filter((_, index) => !removeFiles.includes(index));
+  //jsons = jsons.filter((_, index) => !removeFiles.includes(index));
+  htmlcode += '</table>';
+  
+  database = {};
+  for (let i = 0; i < files.length; i++) {
+    const json = jsons[i];
+    const filename = files[i].name;
+    for(let j = 1; j < json.length - 1; j++) {
+      const stamp = json[j].stamp + '|' + json[j].type;
+      if (!database[stamp]) {
+        database[stamp] = [];
+      }
+      if (!database[stamp].includes(filename)) {
+        database[stamp].push(filename);
+      }
+    }
+  }
+  htmlcode += '<p><strong>Shared components:</strong></p><table>';
+  const timestamps = Object.keys(database).sort();
+  for (let i = 0; i < timestamps.length; i++) {
+    if (database[timestamps[i]].length > 1) {
+      htmlcode += `<tr><td>${timestamps[i]}</td><td>${database[timestamps[i]]}.</td></tr>`;
+    }
+  }
+  htmlcode += '</table><hr>';
+  compareResults.innerHTML = htmlcode;
+}
+
+
+
 /************************ SIMULATION ************************/
 
 function simulationInit() {
@@ -3165,7 +3304,8 @@ function simulationInit() {
 
 function simulationStep() {
   drawMode = null;
-  stepTime = 500;
+  stepTime = 250;
+    
   if (simulationActive !== true) {
     simulationInit();
   }
@@ -3176,6 +3316,7 @@ function simulationStep() {
 
 function simulationStop() {
   drawMode = null;
+  simulationActive = false;
   if (animationID !== null) {
     cancelAnimationFrame(animationID);
     animationID = null;
@@ -3184,6 +3325,7 @@ function simulationStop() {
 
 function simulationContinue() {
   drawMode = null;
+  simulationActive = true;  
   if (animationID === null) {
     animationID = requestAnimationFrame(simulationRender);
   }
@@ -3196,7 +3338,6 @@ function simulationReset() {
   }
   engine.createNodes();
   renderer.draw();
-  simulationActive = false;
 }
 
 
@@ -3219,9 +3360,11 @@ function simulationRender(ms) {
   }
 
   // Aquí solo dibujas el estado actual (una vez por frame)
-  renderer.draw();
+  if (simulationActive) {
+    renderer.draw();
+  }
 
-  if (animationID) {
+  if (animationID && simulationActive) {
     requestAnimationFrame(simulationRender);
   }
 }
@@ -3265,10 +3408,7 @@ function navigatorLang() {
 
 
 /************************ MAIN ************************/
-
-const aboutWindow = document.getElementById('aboutWindow');
-const aboutWindowTitle = document.querySelector('#aboutWindow h2');
-const aboutWindowClose = document.getElementById('closeBtn');
+const aboutWindowClose = document.getElementById('aboutCloseBtn');
 const textPrompt = document.getElementById('textPrompt');
 const textInput = document.getElementById('textInput');
 const messageInput = document.getElementById('messageInput');

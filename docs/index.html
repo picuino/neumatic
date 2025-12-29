@@ -368,7 +368,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.3';
+const programVersion = '2.4';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -1921,7 +1921,8 @@ class Valve22m extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-45, this.y-40, this.x+15, this.y-10, pos);
+    return this.nearRect(this.x-45+this.shift.pos, this.y-40,
+                         this.x+15+this.shift.pos, this.y-10, pos);
   }
 
   nearPushButton(pos) {
@@ -2058,7 +2059,8 @@ class Valve32m extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-50, this.y-40, this.x+30, this.y-10, pos);
+    return this.nearRect(this.x-50+this.shift.pos, this.y-40,
+                         this.x+30+this.shift.pos, this.y-10, pos);
   }
 
   nearPushButton(pos) {
@@ -2208,7 +2210,8 @@ class Valve32r extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-50, this.y-40, this.x+30, this.y-10, pos);
+    return this.nearRect(this.x-50+this.shift.pos, this.y-40,
+                         this.x+30+this.shift.pos, this.y-10, pos);
   }
 
   draw(ctx) {
@@ -2455,7 +2458,8 @@ class Valve32p extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-50, this.y-40, this.x+30, this.y-10, pos);
+    return this.nearRect(this.x-50+this.shift.pos, this.y-40,
+                         this.x+30+this.shift.pos, this.y-10, pos);
   }
 
   draw(ctx) {
@@ -2588,7 +2592,8 @@ class Valve52m extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-90, this.y-40, this.x+30, this.y-10, pos);
+    return this.nearRect(this.x-90+this.shift.pos, this.y-40,
+                         this.x+30+this.shift.pos, this.y-10, pos);
   }
 
   nearPushButton(pos) {
@@ -2735,7 +2740,8 @@ class Valve52p extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-90, this.y-40, this.x+30, this.y-10, pos);
+    return this.nearRect(this.x-90+this.shift.pos, this.y-40,
+                         this.x+30+this.shift.pos, this.y-10, pos);
   }
 
   draw(ctx) {

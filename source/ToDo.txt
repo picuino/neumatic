@@ -18,7 +18,10 @@ TO-DO
 
 29/12/2025
 ---------
-* Publicar versión 2.3
+* Publicar versión 2.4
+
+* Corregir la respuesta al ratón de las válvulas teniendo en cuenta
+  que se desplazan a la derecha cuando están activas.
 
 * Mejorar visualización en tabla de la comparación de archivos.
 
@@ -30,6 +33,8 @@ TO-DO
 
 * Corregir cámara de los cilindros para que no se dibuje por encima
   del vástago del cilindro.
+
+* Publicar versión 2.3
   
 * Añadir voltear de Normalmente Cerrada a Normalmente Abierta en
   Válvula 2/2 manual, Válvula 3/2 manual, Válvula 3/2 por rodillo.

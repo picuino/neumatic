@@ -716,6 +716,21 @@ class ComponentBase {
     ctx.stroke();
   }
 
+  drawCamera(ctx, init_x, init_y, end_x, end_y, color=defaultColor) {
+    if (this.selected) color = selectedColor;
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(end_x, init_y + 10);
+    ctx.lineTo(end_x, init_y);
+    ctx.lineTo(init_x, init_y);
+    ctx.lineTo(init_x, end_y);
+    ctx.lineTo(end_x, end_y);
+    ctx.lineTo(end_x, end_y - 10);
+    ctx.stroke();
+  };
+
   drawSpring(ctx, init_x, init_y, color=defaultColor) {
     if (this.selected) color = selectedColor;
 
@@ -1576,7 +1591,7 @@ class Cylinder1 extends ComponentBase {
   draw(ctx) {
     this.drawPort(ctx, this.x, this.y, 0, -10, this.color1);
     this.drawPressure(ctx, this.x-5, this.y-40);
-    this.drawRectangle(ctx, this.x-5, this.y-40, this.x+115, this.y-10);
+    this.drawCamera(ctx, this.x-5, this.y-40, this.x+115, this.y-10);
     this.drawPiston(ctx, this.shift);
   }
 
@@ -1784,7 +1799,7 @@ class Cylinder2 extends ComponentBase {
     this.drawPort(ctx, this.x+110, this.y, 0, -10, this.color2);
     this.drawPressure1(ctx);
     this.drawPressure2(ctx);
-    this.drawRectangle(ctx, this.x-5, this.y-10, this.x+115, this.y-40);
+    this.drawCamera(ctx, this.x-5, this.y-40, this.x+115, this.y-10);
     this.drawPiston(ctx, this.shift);
   }
 

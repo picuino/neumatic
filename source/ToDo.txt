@@ -1,19 +1,17 @@
 TO-DO
 =====
-* Añadir visualización de la gráfica del movimiento de los cilindros.
-
 * Tutorial de neumática más completo que el que hay ahora y adaptado a
   este simulador.
 
 * Añadir traducción de textos.
+
+* Añadir visualización de la gráfica del movimiento de los cilindros.
 
 * Añadir editar/modificar el esquema mientras se simula.
 
 * Añadir visualizar flujo de aire en las tuberías con puntos móviles.
 
 * Seleccionar conjunto de componentes y mover la selección.
-
-* Modificar válvulas de Normalmente Cerradas a Normalmente Abiertas.
 
 * Mejorar el interface en pantallas táctiles como el móvil.
 
@@ -22,6 +20,9 @@ TO-DO
 ---------
 * Publicar versión 2.3
 
+* Corregir cámara de los cilindros para que no se dibuje por encima
+  del vástago del cilindro.
+  
 * Añadir voltear de Normalmente Cerrada a Normalmente Abierta en
   Válvula 2/2 manual, Válvula 3/2 manual, Válvula 3/2 por rodillo.
 

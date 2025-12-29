@@ -20,6 +20,10 @@ TO-DO
 ---------
 * Publicar versión 2.3
 
+* Corregido color de pilotajes neumáticos.
+
+* Modificado el color de edición cuando se mueven los componentes.
+
 * Corregir cámara de los cilindros para que no se dibuje por encima
   del vástago del cilindro.
   

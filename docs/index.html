@@ -139,6 +139,18 @@
   ul {
     padding-left: 15px;
   }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 4px;
+    vertical-align: top;
+    border: 1px solid #000;
+  }
+  
   </style>
 </head>
 
@@ -300,7 +312,7 @@
     <input type="file" id="compareFileInput" multiple>
     <div id="compareResults"></div>
     <div style="margin-top: 16px;">
-       <button onclick="compareFilesUploaded()" id="compareBtn" data-i18n="compareBtn">Compare Schematics</button>
+       <button onclick="compareWindowReport()" id="compareBtn" data-i18n="compareBtn">Compare Schematics</button>
        <button onclick="compareWindowClose()" id="compareCloseBtn" data-i18n="compareCloseBtn">Close Window</button>
     </div>
   </dialog>
@@ -361,8 +373,8 @@ const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
 const nearDist = 5;
-const selectedColor = '#44f';
-const defaultColor = '#000';
+const selectedColor = '#e06000';
+const defaultColor = '#000000';
 const textFont = '14px sans-serif';
 const canvasScale = 2;
 const airPressure = 1; // bar
@@ -802,7 +814,7 @@ class ComponentBase {
     ctx.moveTo(posX-44, this.y-20);
     ctx.lineTo(this.x+length, this.y-20);
     ctx.stroke();
-    this.drawRectangle(ctx, posX-30, this.y-27, posX-44, this.y-13, this.color4);
+    this.drawRectangle(ctx, posX-30, this.y-27, posX-44, this.y-13, color);
     ctx.beginPath();
     ctx.moveTo(posX-44, this.y-27);
     ctx.lineTo(posX-34, this.y-20);
@@ -818,7 +830,7 @@ class ComponentBase {
     ctx.moveTo(posX+44, this.y-20);
     ctx.lineTo(this.x+length, this.y-20);
     ctx.stroke();
-    this.drawRectangle(ctx, posX+30, this.y-27, posX+44, this.y-13, this.color5);
+    this.drawRectangle(ctx, posX+30, this.y-27, posX+44, this.y-13, color);
     ctx.beginPath();
     ctx.moveTo(posX+44, this.y-27);
     ctx.lineTo(posX+34, this.y-20);
@@ -831,12 +843,12 @@ class ComponentBase {
   reset () {}
 
   colorPressure(pressure, bg = 0) {
-    let cp = Math.round(255 * ((pressure - airPressure) / (compressorPressure - airPressure)));
     if (bg === 0) {
+      let cp = Math.round(255 * Math.sqrt((pressure - airPressure) / (compressorPressure - airPressure)));
       return 'rgb(' + 0 + ',' + 0 + ',' + cp + ')';
     }
     else {
-      cp = 255 - cp;
+      let cp = 255 - Math.round(255 * ((pressure - airPressure) / (compressorPressure - airPressure)));
       return 'rgb(' + cp + ',' + cp + ',' + 255 + ')';
     }
   }
@@ -3330,7 +3342,7 @@ function compareWindowClose() {
   compareWindow.close();
 }
 
-async function compareFilesUploaded() {
+async function compareWindowReport() {
   const inputFiles = Array.from(document.getElementById('compareFileInput').files);
   const compareResults = document.getElementById('compareResults');
 
@@ -3339,7 +3351,7 @@ async function compareFilesUploaded() {
     const json = await readJSON(file);
     jsons.push(json);
   }
-  detectErrors(inputFiles, jsons);  
+  reportErrors(inputFiles, jsons);  
 }
 
 function readJSON(file) {
@@ -3380,38 +3392,38 @@ function testTeacher(json) {
   return comps;
 }
 
-function detectErrors(files, jsons) {
+function reportErrors(files, jsons) {
   let removeFiles = [];
-  let htmlcode = '';
-  htmlcode = '<hr><p><strong>Corrupted files:</strong></p><ul>';
+  let htmlcode = [];
+  htmlcode.push('<hr><p><strong>Corrupted files:</strong></p><table>');
   for (let i = 0; i < files.length; i++) {
     const valid = testJSON(jsons[i]);
     if (!valid) {
-      htmlcode += `<li>${files[i].name} Corrupted file.</li>`;
+      htmlcode.push('<tr><td>' + files[i].name + '</td><td>Corrupted file.</td></tr>');
       removeFiles.push(i);
     }
   }
   files = files.filter((_, index) => !removeFiles.includes(index));
   jsons = jsons.filter((_, index) => !removeFiles.includes(index));
   
-  htmlcode += '</ul><p><strong>Teacher files:</strong></p><table>';
+  htmlcode.push('</table><p><strong>Teacher files:</strong></p><table>');
   for (let i = 0; i < files.length; i++) {
     const teacherComps = testTeacher(jsons[i]);
     if (teacherComps > 0) {
-      htmlcode += `<tr><td>${files[i].name}</td><td>${teacherComps} Teacher Components inside.</td></tr>`;
+      htmlcode.push('<tr><td>' + files[i].name + '</td><td>' + teacherComps + '</td><td>Teacher Components inside.</td></tr>');
       removeFiles.push(i);
     }
   }
   //files = files.filter((_, index) => !removeFiles.includes(index));
   //jsons = jsons.filter((_, index) => !removeFiles.includes(index));
-  htmlcode += '</table>';
+  htmlcode.push('</table>');
   
   database = {};
   for (let i = 0; i < files.length; i++) {
     const json = jsons[i];
     const filename = files[i].name;
     for(let j = 1; j < json.length - 1; j++) {
-      const stamp = json[j].stamp + '|' + json[j].type;
+      const stamp = json[j].stamp + '+' + json[j].type;
       if (!database[stamp]) {
         database[stamp] = [];
       }
@@ -3420,15 +3432,16 @@ function detectErrors(files, jsons) {
       }
     }
   }
-  htmlcode += '<p><strong>Shared components:</strong></p><table>';
+  htmlcode.push('<p><strong>Shared components:</strong></p><table>');
   const timestamps = Object.keys(database).sort();
   for (let i = 0; i < timestamps.length; i++) {
     if (database[timestamps[i]].length > 1) {
-      htmlcode += `<tr><td>${timestamps[i]}</td><td>${database[timestamps[i]]}.</td></tr>`;
+      htmlcode.push('<tr><td>' + timestamps[i] + '</td><td>' + database[timestamps[i]] + '.</td></tr>');
     }
   }
-  htmlcode += '</table><hr>';
-  compareResults.innerHTML = htmlcode;
+  htmlcode.push('</table><hr>');
+  compareResults.innerHTML = htmlcode.join('\n');
+  console.log(htmlcode.join('\n'))
 }
 
 

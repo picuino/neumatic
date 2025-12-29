@@ -1,5 +1,7 @@
 TO-DO
 =====
+* Mejorar el interface en pantallas táctiles como el móvil.
+
 * Tutorial de neumática más completo que el que hay ahora y adaptado a
   este simulador.
 
@@ -13,16 +15,18 @@ TO-DO
 
 * Seleccionar conjunto de componentes y mover la selección.
 
-* Mejorar el interface en pantallas táctiles como el móvil.
-
 
 29/12/2025
 ---------
 * Publicar versión 2.3
 
-* Corregido color de pilotajes neumáticos.
+* Mejorar visualización en tabla de la comparación de archivos.
 
-* Modificado el color de edición cuando se mueven los componentes.
+* Mejorar muelle del piston de simple efecto.
+
+* Corregir el color de los pilotajes neumáticos.
+
+* Modificar el color de edición cuando se mueven los componentes.
 
 * Corregir cámara de los cilindros para que no se dibuje por encima
   del vástago del cilindro.

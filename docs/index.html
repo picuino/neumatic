@@ -1623,16 +1623,32 @@ class Cylinder1 extends ComponentBase {
   drawSpring(ctx, initX, initY, endX) {
     const step = (endX-initX)/6;
     ctx.lineWidth = lineWidth;
-    ctx.beginPath();
     ctx.lineJoin = 'round';
+    ctx.beginPath();
     ctx.moveTo(initX, initY);
     ctx.lineTo(initX+step, initY-24);
-    ctx.lineTo(initX+step*2, initY+0);
-    ctx.lineTo(initX+step*3, initY-24);
-    ctx.lineTo(initX+step*4, initY+0);
-    ctx.lineTo(initX+step*5, initY-24);
-    ctx.lineTo(initX+step*6, initY+0);
+    ctx.lineTo(initX+step*1.3333, initY-17);
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(initX+step*1.6666, initY-7);
+    ctx.lineTo(initX+step*2, initY);
+    ctx.lineTo(initX+step*3, initY-24);
+    ctx.lineTo(initX+step*3.3333, initY-17);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(initX+step*3.6666, initY-7);
+    ctx.lineTo(initX+step*4, initY);
+    ctx.lineTo(initX+step*5, initY-24);
+    ctx.lineTo(initX+step*5.3333, initY-17);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(initX+step*5.66666, initY-7);
+    ctx.lineTo(initX+step*6, initY);
+    ctx.stroke();
+
     ctx.lineJoin = 'miter';
   }
 }

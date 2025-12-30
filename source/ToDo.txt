@@ -1,6 +1,5 @@
 TO-DO
 =====
-* Mejorar el interface en pantallas táctiles como el móvil.
 
 * Tutorial de neumática más completo que el que hay ahora y adaptado a
   este simulador.
@@ -9,15 +8,45 @@ TO-DO
 
 * Añadir visualización de la gráfica del movimiento de los cilindros.
 
-* Añadir editar/modificar el esquema mientras se simula.
-
 * Añadir visualizar flujo de aire en las tuberías con puntos móviles.
 
-* Seleccionar conjunto de componentes y mover la selección.
+* Añadir ruido blanco en los escapes de aire para dar mayor realismo.
+
+
+30/12/2025
+----------
+* Publicar versión 2.5
+
+* Corregido error en las opciones de la Valvula 3/2 con rodillo.
+
+* Añadir Válvula 3/2 con pulsador, que se desactiva sola después de un
+  corto espacio de tiempo.
+
+* Fijar un tamaño mínimo para el canvas.
+
+* Corregir el tamaño vertical del canvas para que no sobrepase la pantalla.
+
+* Mover componente en referencia al lugar donde se ha clicado por 
+  primera vez.
+
+* Ampliar tamaño de clicado sobre los cilindros.
 
 
 29/12/2025
 ---------
+* Comprobar con variable animationLoad, que la carga de trabajo de la
+  simulación y el dibujado del canvas no es muy alta:
+  Cilindro doble efecto automático con válvulas reguladoras de flujo.
+  12% simulación (en móvil y en navegador Firefox)
+  12% dibujado en canvas (en móvil y en navegador Firefox)
+
+* Evitar que pulsar la letra s mientras se edita texto mueva la simulación.
+
+* Cambiar el color de todos los elementos de las válvulas valveNret, valveFlow
+  y textos varios mientras se mueven.
+
+* Calcular el tamaño del texto para poder clicar sobre el en toda su extensión.
+
 * Publicar versión 2.4
 
 * Corregir la respuesta al ratón de las válvulas teniendo en cuenta

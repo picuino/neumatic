@@ -364,7 +364,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.5';
+const programVersion = '2.6';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -1022,6 +1022,10 @@ class Manometer extends ComponentBase {
     this.type = 'Manometer';
     this.pressure = airPressure;
     this.color = defaultColor;
+    this.options = {
+      flipped: false,
+    }
+      
   }
 
   vias() {
@@ -1033,6 +1037,15 @@ class Manometer extends ComponentBase {
     this.color = defaultColor;
   }
 
+  flip() {
+    if (this.options.flipped === true) {
+      this.options.flipped = false;
+    }
+    else {
+      this.options.flipped = true;
+    }
+  }
+
   update(ctx, engine, dt) {
     const [via1] = this.vias()
     const node = engine.findNode(via1); 
@@ -1042,28 +1055,53 @@ class Manometer extends ComponentBase {
   }
 
   near(pos) {
-    return this.nearRect(this.x-15, this.y-10, this.x+15, this.y-40, pos);
+    if (this.options.flipped)
+      return this.nearRect(this.x-15, this.y+10, this.x+15, this.y+46, pos);
+    else 
+      return this.nearRect(this.x-15, this.y-10, this.x+15, this.y-46, pos);
   }
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
-    this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
     
-    ctx.strokeStyle = defaultColor;
-    ctx.beginPath();
-    ctx.arc(this.x,this.y-22,12,0,Math.PI*2);
-    ctx.stroke();
-    
-    ctx.beginPath();
-    this.drawArrow(ctx, this.x+5, this.y-14, this.x-4, this.y-29, this.color);
-    ctx.stroke();
-    
-    ctx.font = textFont;
-    ctx.fillStyle = defaultColor;
-    ctx.strokeStyle = defaultColor;
-    ctx.textAlign = "center";
-    ctx.fillText((this.pressure-airPressure).toFixed(1), this.x, this.y-38);
-    ctx.textAlign = "start";
+    if (this.options.flipped) {
+      this.drawPort(ctx, this.x, this.y, 0, 10, this.color);
+      
+      ctx.strokeStyle = defaultColor;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y+22,12,0,Math.PI*2);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      this.drawArrow(ctx, this.x+7, this.y+22+7, this.x-5, this.y+22-5, this.color);
+      ctx.stroke();
+      
+      ctx.font = textFont;
+      ctx.fillStyle = defaultColor;
+      ctx.strokeStyle = defaultColor;
+      ctx.textAlign = "center";
+      ctx.fillText((this.pressure-airPressure).toFixed(1), this.x, this.y+48);
+      ctx.textAlign = "start";
+    }
+    else {
+      this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
+      
+      ctx.strokeStyle = defaultColor;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y-22,12,0,Math.PI*2);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      this.drawArrow(ctx, this.x+7, this.y-22+7, this.x-5, this.y-22-5, this.color);
+      ctx.stroke();
+      
+      ctx.font = textFont;
+      ctx.fillStyle = defaultColor;
+      ctx.strokeStyle = defaultColor;
+      ctx.textAlign = "center";
+      ctx.fillText((this.pressure-airPressure).toFixed(1), this.x, this.y-38);
+      ctx.textAlign = "start";
+    }
   }
 }
 
@@ -1174,12 +1212,8 @@ class ValveNret extends ComponentBase {
   }
 
   flip() {
-    if (this.options.flipped === true) {
-      this.options.flipped = false;
-    }
-    else {
-      this.options.flipped = true;
-    }
+    if (this.options.flipped) this.options.flipped = false;
+    else this.options.flipped = true;
   }
 
   near(pos) {
@@ -3307,7 +3341,7 @@ class UIController {
     if (drawMode === 'Flip') {
       for (const comp of this.engine.components) {
         if (comp.near(position)) {
-          if (['ValveNret', 'Valve22m', 'Valve32b',
+          if (['Manometer', 'ValveNret', 'Valve22m', 'Valve32b',
                'Valve32m', 'Valve32r',  'Valve32p'].includes(comp.type)) {
             comp.flip();
             break;

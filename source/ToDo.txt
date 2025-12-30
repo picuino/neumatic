@@ -15,6 +15,9 @@ TO-DO
 
 30/12/2025
 ----------
+* Publicar versión 2.6.
+
+* Permitir voltear manómetro con la vía por arriba.
 
 * Validar las entradas de opciones en todos los componentes editables
   o modificables.

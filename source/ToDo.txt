@@ -15,7 +15,11 @@ TO-DO
 
 30/12/2025
 ----------
-* Publicar versión 2.5
+* Publicar versión 2.5.
+
+* Corregir la posición x del texto, sin desplazamiento añadido.
+
+* Numerar según norma los componentes de los circuitos de ejemplo.
 
 * Corregido error en las opciones de la Valvula 3/2 con rodillo.
 

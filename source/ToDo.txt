@@ -15,6 +15,17 @@ TO-DO
 
 30/12/2025
 ----------
+
+* Validar las entradas de opciones en todos los componentes editables
+  o modificables.
+
+* Mejorar los colores azules de presión para eliminar rangos demasiado
+  oscuros.
+
+* Manejar en el compresor presiones relativas.
+
+* Cambiar la presión absoluta del compresor a 7 bar = 6 bar relativos.
+
 * Añadir manómetro.
 
 * Permitir modificar presión de los compresores.
@@ -34,7 +45,7 @@ TO-DO
 
 * Corregir el tamaño vertical del canvas para que no sobrepase la pantalla.
 
-* Mover componente en referencia al lugar donde se ha clicado por 
+* Mover componente en referencia al lugar donde se ha clicado por
   primera vez.
 
 * Ampliar tamaño de clicado sobre los cilindros.
@@ -72,7 +83,7 @@ TO-DO
   del vástago del cilindro.
 
 * Publicar versión 2.3
-  
+
 * Añadir voltear de Normalmente Cerrada a Normalmente Abierta en
   Válvula 2/2 manual, Válvula 3/2 manual, Válvula 3/2 por rodillo.
 

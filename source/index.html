@@ -375,8 +375,8 @@ const textFont = '14px sans-serif';
 const canvasScale = 2;
 const minCanvasWidth = 320 * canvasScale;
 const minCanvasHeight = 320 * canvasScale;
-const airPressure = 1; // bar
-const compressorPressure = 8; // bar
+const airPressure = 1; // bar absolute
+const compressorPressure = 6; // bar relative
 const conductanceBase = 2000;
 const minTimestamp = parseInt('1900000000', 16);
 
@@ -653,6 +653,8 @@ class ComponentBase {
   draw(ctx){
   }
 
+  validateOptions() {
+  }
 
   drawPipe(ctx, color=defaultColor) {
     if (this.selected) color = selectedColor;
@@ -873,11 +875,11 @@ class ComponentBase {
 
   colorPressure(pressure, bg = 0) {
     if (bg === 0) {
-      let cp = Math.round(255 * Math.sqrt((pressure - airPressure) / (compressorPressure - airPressure)));
+      let cp = 32 + Math.round(223 * Math.sqrt((pressure - airPressure) / (compressorPressure - airPressure)));
       return 'rgb(' + 0 + ',' + 0 + ',' + cp + ')';
     }
     else {
-      let cp = 255 - Math.round(255 * ((pressure - airPressure) / (compressorPressure - airPressure)));
+      let cp = 255 - Math.round(192 * ((pressure - airPressure) / (compressorPressure - airPressure)));
       return 'rgb(' + cp + ',' + cp + ',' + 255 + ')';
     }
   }
@@ -941,7 +943,12 @@ class Text extends ComponentBase {
   near(pos) {
     return this.nearRect(this.x, this.y-10, this.x+this.width, this.y+5, pos);
   }
-
+  
+  validateOptions() {
+    if (this.options.text.length > 150)
+      this.options.text = this.options.text.slice(0, 150);
+  }
+  
   draw(ctx) {
     const metrics = ctx.measureText(this.options.text);
     this.width = metrics.width + 10;
@@ -1080,7 +1087,7 @@ class Compressor extends ComponentBase {
     this.color = defaultColor;
   }
 
-  setPressure() {
+  validateOptions() {
     this.options.pressure = Number(this.options.pressure);
     if (isNaN(this.options.pressure)) {
       this.options.pressure = compressorPressure;
@@ -1095,13 +1102,10 @@ class Compressor extends ComponentBase {
   
   update(ctx, engine, dt) {
     const [via1] = this.vias()
-    const node = engine.findNode(via1); 
-
-    this.setPressure(); 
-
-    node.pressure = this.options.pressure;
+    const node = engine.findNode(via1);
+    node.pressure = this.options.pressure + airPressure;
     node.mass = node.pressure * node.volume;
-    this.color = this.colorPressure(this.options.pressure);
+    this.color = this.colorPressure(node.pressure);
   }
 
   near(pos) {
@@ -1279,6 +1283,16 @@ class ValveFlow extends ComponentBase {
     this.color = defaultColor;
   }
 
+  validateOptions() {
+    this.options.conductance = Number(this.options.conductance);
+    if (isNaN(this.options.conductance))
+      this.options.conductance = 100;
+    if (this.options.conductance > 500) 
+      this.options.conductance = 500;
+    if (this.options.conductance < 10)
+      this.options.conductance = 10;
+  }
+
   vias() {
     const via1 = {x:this.x, y:this.y};
     const via2 = {x:this.x, y:this.y-50};
@@ -1293,8 +1307,6 @@ class ValveFlow extends ComponentBase {
     const [via1, via2] = this.vias();
     const node1 = engine.findNode(via1);
     const node2 = engine.findNode(via2);
-    if (this.options.conductance > 500) this.options.conductance = 500;
-    if (this.options.conductance < 10) this.options.conductance = 10;
     this.computeFlow(node1, node2, this.options.conductance, dt);
     this.color = this.colorPressure(0.5*(node1.pressure + node2.pressure));
   }
@@ -2403,8 +2415,13 @@ class Valve32r extends ComponentBase {
     this.color3 = defaultColor;
     this.options = {
       flipped: false,
-      reference: '1.1',
+      reference: '1.2',
     };
+  }
+
+  validateOptions() {
+    if (this.options.reference.length > 3)
+      this.options.reference = this.options.reference.slice(0, 3);
   }
 
   vias() {
@@ -2525,7 +2542,7 @@ class Valve32r extends ComponentBase {
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.textAlign = "center";
-    ctx.fillText(this.options.reference.slice(0, 3), posX-66, this.y-35);
+    ctx.fillText(this.options.reference, posX-66, this.y-35);
     ctx.textAlign = "start";
   }
 }
@@ -2540,10 +2557,15 @@ class Roller extends ComponentBase {
     this.color = '#000';
     this.touching = false;
     this.options = {
-      reference: '1.1',
+      reference: '1.2',
     }
   }
-
+  
+  validateOptions() {
+    if (this.options.reference.length > 3)
+      this.options.reference = this.options.reference.slice(0, 3);
+  }
+  
   vias() {
     return [];
   }
@@ -2564,7 +2586,7 @@ class Roller extends ComponentBase {
     }
     for (const comp of engine.components) {
       if (['Valve32r'].includes(comp.type)) {
-        if (this.options.reference.slice(0, 3) === comp.options.reference.slice(0, 3)) {
+        if (this.options.reference === comp.options.reference) {
           if (this.shift === 0)
             comp.active = false;
           else
@@ -2594,7 +2616,7 @@ class Roller extends ComponentBase {
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.textAlign = "center";
-    ctx.fillText(this.options.reference.slice(0, 3), this.x, this.y-25);
+    ctx.fillText(this.options.reference, this.x, this.y-25);
     ctx.textAlign = "start";
 
     let posY = this.y - this.shift;
@@ -3914,6 +3936,7 @@ function textPromptAssign(key, message) {
       const text = textInput.value.trim();
       if (text.length > 0) {
         componentEdit.options[key] = text;
+        componentEdit.validateOptions();
       }
       componentEdit = null;
       renderer.draw();

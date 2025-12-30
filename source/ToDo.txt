@@ -15,6 +15,10 @@ TO-DO
 
 30/12/2025
 ----------
+* Añadir manómetro.
+
+* Permitir modificar presión de los compresores.
+
 * Publicar versión 2.5.
 
 * Corregir la posición x del texto, sin desplazamiento añadido.

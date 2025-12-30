@@ -220,10 +220,11 @@
             </ul>
           </li>
 
-          <li><a href="#" data-action="cPress"  data-i18n="cPress">Compressor</a></li>
           <li><a href="#" data-action="cPipe"   data-i18n="cPipe">Pipe</a></li>
+          <li><a href="#" data-action="cPress"  data-i18n="cPress">Compressor</a></li>
           <li><a href="#" data-action="cEscape" data-i18n="cEscape">Escape</a></li>
           <li><a href="#" data-action="cText"   data-i18n="cText">Text</a></li>
+          <li><a href="#" data-action="cManometer"  data-i18n="cManometer">Manometer</a></li>
 
         </ul>
       </li>
@@ -440,6 +441,7 @@ const translations = {
     cCylinder1: 'Single-acting',
     cCylinder2: 'Double-acting',
     cPress: 'Compressor',
+    cManometer: 'Manometer',
     cPipe: 'Pipe',
     cEscape: 'Escape',
     cText: 'Text',
@@ -495,6 +497,7 @@ const translations = {
     cCylinder1: 'Simple efecto',
     cCylinder2: 'Doble efecto',
     cPress: 'Compresor',
+    cManometer: 'Manómetro',
     cPipe: 'Tubería',
     cEscape: 'Escape',
     cText: 'Texto',
@@ -561,6 +564,7 @@ document.addEventListener("click", (e) => {
 
     cPipe: () =>      { simulationStop(); drawMode='component'; componentType='Pipe'; },
     cPress: () =>     { simulationStop(); drawMode='component'; componentType='Compressor'; },
+    cManometer: () => { simulationStop(); drawMode='component'; componentType='Manometer'; },
     cEscape: () =>    { simulationStop(); drawMode='component'; componentType='Escape'; },
     cText: () =>      { simulationStop(); drawMode='component'; componentType='Text'; },
     cValve22m: () =>  { simulationStop(); drawMode='component'; componentType='Valve22m'; },
@@ -1005,11 +1009,11 @@ class Pipe extends ComponentBase {
 }
 
 
-class Compressor extends ComponentBase {
+class Manometer extends ComponentBase {
   constructor(pos) {
     super(pos);
-    this.type = 'Compressor';
-    this.pressure = compressorPressure;
+    this.type = 'Manometer';
+    this.pressure = airPressure;
     this.color = defaultColor;
   }
 
@@ -1024,10 +1028,80 @@ class Compressor extends ComponentBase {
 
   update(ctx, engine, dt) {
     const [via1] = this.vias()
-    const node = engine.findNode(via1);
-    node.pressure = this.pressure;
-    node.mass = node.pressure * node.volume;
+    const node = engine.findNode(via1); 
+
+    this.pressure = node.pressure;
     this.color = this.colorPressure(this.pressure);
+  }
+
+  near(pos) {
+    return this.nearRect(this.x-15, this.y-10, this.x+15, this.y-40, pos);
+  }
+
+  draw(ctx) {
+    ctx.lineWidth = lineWidth;
+    this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
+    
+    ctx.strokeStyle = defaultColor;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y-22,12,0,Math.PI*2);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    this.drawArrow(ctx, this.x+5, this.y-14, this.x-4, this.y-29, this.color);
+    ctx.stroke();
+    
+    ctx.font = textFont;
+    ctx.fillStyle = defaultColor;
+    ctx.strokeStyle = defaultColor;
+    ctx.textAlign = "center";
+    ctx.fillText((this.pressure-airPressure).toFixed(1), this.x, this.y-38);
+    ctx.textAlign = "start";
+  }
+}
+
+
+class Compressor extends ComponentBase {
+  constructor(pos) {
+    super(pos);
+    this.type = 'Compressor';
+    this.color = defaultColor;
+    this.options = {
+      pressure: compressorPressure,
+    }
+  }
+
+  vias() {
+    const via1 = {x:this.x, y:this.y};
+    return [via1];
+  }
+
+  reset() {
+    this.color = defaultColor;
+  }
+
+  setPressure() {
+    this.options.pressure = Number(this.options.pressure);
+    if (isNaN(this.options.pressure)) {
+      this.options.pressure = compressorPressure;
+    }
+    if (this.options.pressure > compressorPressure) {
+      this.options.pressure = compressorPressure;
+    }
+    if (this.options.pressure < airPressure) {
+      this.options.pressure = airPressure;
+    }
+  }
+  
+  update(ctx, engine, dt) {
+    const [via1] = this.vias()
+    const node = engine.findNode(via1); 
+
+    this.setPressure(); 
+
+    node.pressure = this.options.pressure;
+    node.mass = node.pressure * node.volume;
+    this.color = this.colorPressure(this.options.pressure);
   }
 
   near(pos) {
@@ -3192,6 +3266,11 @@ class UIController {
             textPromptAssign('conductance', 'Conductance:');
             break;
           }
+          if (comp.type === 'Compressor') {
+            componentEdit = comp;
+            textPromptAssign('pressure', 'Pressure:');
+            break;
+          }
           if (['Valve32r', 'Roller'].includes(comp.type)) {
             componentEdit = comp;
             textPromptAssign('reference', 'Reference:');
@@ -3237,6 +3316,7 @@ class UIController {
     if (drawMode === 'component') {
       let comp = null;
       if (componentType === 'Compressor') comp = new Compressor(position);
+      if (componentType === 'Manometer') comp = new Manometer(position);
       if (componentType === 'Escape') comp = new Escape(position);
       if (componentType === 'Text') comp = new Text(position);
       if (componentType === 'Cylinder1') comp = new Cylinder1(position);
@@ -3441,6 +3521,7 @@ function loadSchema(schematicJSON) {
   for (const comp of schematic) {
     newcomp = null;
     if (comp.type === 'Compressor') newcomp = new Compressor({x:comp.x, y:comp.y});
+    if (comp.type === 'Manometer')  newcomp = new Manometer({x:comp.x, y:comp.y});
     if (comp.type === 'Escape')     newcomp = new Escape({x:comp.x, y:comp.y});
     if (comp.type === 'Cylinder1')  newcomp = new Cylinder1({x:comp.x, y:comp.y});
     if (comp.type === 'Cylinder2')  newcomp = new Cylinder2({x:comp.x, y:comp.y});

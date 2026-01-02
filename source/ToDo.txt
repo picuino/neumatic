@@ -12,6 +12,28 @@ TO-DO
 
 * Añadir ruido blanco en los escapes de aire para dar mayor realismo.
 
+02/01/2026
+----------
+
+
+31/12/2025
+----------
+
+* Añadir opción editable a los cilindros para que se pueda añadir carga.
+
+* Corregido error que no permitía simular un paso presionando la tecla 's'.
+
+* Aumentada la velocidad de cambio de las válvulas.
+
+* Cambiar enlace al tutorial en inglés.
+
+* Añadir tutorial de las válvulas neumáticas y de la válvula 3/2
+  en español y en inglés.
+
+* Reducida la altura de los rodillos asociados a las válvulas de rodillo.
+
+* Añadidos dos esquemas multicilindro, simple y con método de cascada.
+
 
 30/12/2025
 ----------

@@ -321,7 +321,9 @@
     <p><strong>Copyright © 2025 Carlos Félix Pardo Martín.</strong></p>
     <p><strong>Email:</strong> <span style="unicode-bidi:bidi-override; direction: rtl;">moc.oniu<span style="display:none">n</span>cip&#64;sol<span style="display:none">novale</span>rac<span></p>
     <p><strong>Original:</strong> <a href="https://www.picuino.com/neumatic/index.html" target="_blank">Pneumatic simulator original web page</a>.</p>
-    <p><strong>Tutorial:</strong> <a href="https://www.picuino.com/es/mecan-neumatic-index.html" target="_blank">Pneumatics tutorial</a>.</p>
+    <p><strong>Tutorial:</strong>
+      <a href="https://www.picuino.com/en/mecan-neumatic-index.html" target="_blank">Pneumatics tutorial (en)</a>.
+      <a href="https://www.picuino.com/es/mecan-neumatic-index.html" target="_blank">Tutorial de neumática (es)</a>.</p>
     <p><strong>GitHub:</strong> <a href="https://github.com/picuino/neumatic/" target="_blank">Pneumatic Simulator source code</a>.</p>
     <p>
     This program is free software: you can redistribute it and/or modify
@@ -792,7 +794,7 @@ class ComponentBase {
     ctx.lineTo(init_x-10, init_y-10);
     ctx.stroke();
   }
-  
+
   drawPushButton(ctx, init_x, init_y, color=defaultColor) {
     if (this.selected) color = selectedColor;
 
@@ -944,12 +946,12 @@ class Text extends ComponentBase {
   near(pos) {
     return this.nearRect(this.x, this.y-10, this.x+this.width, this.y+5, pos);
   }
-  
+
   validateOptions() {
     if (this.options.text.length > 150)
       this.options.text = this.options.text.slice(0, 150);
   }
-  
+
   draw(ctx) {
     const metrics = ctx.measureText(this.options.text);
     this.width = metrics.width + 10;
@@ -1026,7 +1028,7 @@ class Manometer extends ComponentBase {
     this.options = {
       flipped: false,
     }
-      
+
   }
 
   vias() {
@@ -1049,7 +1051,7 @@ class Manometer extends ComponentBase {
 
   update(ctx, engine, dt) {
     const [via1] = this.vias()
-    const node = engine.findNode(via1); 
+    const node = engine.findNode(via1);
 
     this.pressure = node.pressure;
     this.color = this.colorPressure(this.pressure);
@@ -1058,25 +1060,25 @@ class Manometer extends ComponentBase {
   near(pos) {
     if (this.options.flipped)
       return this.nearRect(this.x-15, this.y+10, this.x+15, this.y+46, pos);
-    else 
+    else
       return this.nearRect(this.x-15, this.y-10, this.x+15, this.y-46, pos);
   }
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
-    
+
     if (this.options.flipped) {
       this.drawPort(ctx, this.x, this.y, 0, 10, this.color);
-      
+
       ctx.strokeStyle = defaultColor;
       ctx.beginPath();
       ctx.arc(this.x,this.y+22,12,0,Math.PI*2);
       ctx.stroke();
-      
+
       ctx.beginPath();
       this.drawArrow(ctx, this.x+7, this.y+22+7, this.x-5, this.y+22-5, this.color);
       ctx.stroke();
-      
+
       ctx.font = textFont;
       ctx.fillStyle = defaultColor;
       ctx.strokeStyle = defaultColor;
@@ -1086,16 +1088,16 @@ class Manometer extends ComponentBase {
     }
     else {
       this.drawPort(ctx, this.x, this.y, 0, -10, this.color);
-      
+
       ctx.strokeStyle = defaultColor;
       ctx.beginPath();
       ctx.arc(this.x,this.y-22,12,0,Math.PI*2);
       ctx.stroke();
-      
+
       ctx.beginPath();
       this.drawArrow(ctx, this.x+7, this.y-22+7, this.x-5, this.y-22-5, this.color);
       ctx.stroke();
-      
+
       ctx.font = textFont;
       ctx.fillStyle = defaultColor;
       ctx.strokeStyle = defaultColor;
@@ -1134,11 +1136,11 @@ class Compressor extends ComponentBase {
     if (this.options.pressure > compressorPressure) {
       this.options.pressure = compressorPressure;
     }
-    if (this.options.pressure < airPressure) {
-      this.options.pressure = airPressure;
+    if (this.options.pressure < 0.5) {
+      this.options.pressure = 0.5;
     }
   }
-  
+
   update(ctx, engine, dt) {
     const [via1] = this.vias()
     const node = engine.findNode(via1);
@@ -1322,8 +1324,8 @@ class ValveFlow extends ComponentBase {
     this.options.conductance = Number(this.options.conductance);
     if (isNaN(this.options.conductance))
       this.options.conductance = 100;
-    if (this.options.conductance > 500) 
-      this.options.conductance = 500;
+    if (this.options.conductance > 1000)
+      this.options.conductance = 1000;
     if (this.options.conductance < 10)
       this.options.conductance = 10;
   }
@@ -1632,6 +1634,7 @@ class Cylinder1 extends ComponentBase {
     this.maxShift = 90;
     this.color = '#000';
     this.pressure1 = airPressure; // bar
+    this.mass1 = 0;
     this.n = 0;
     this.conductance = conductanceBase;
     this.position = {min:0, max:0.20, actual:0};
@@ -1639,18 +1642,32 @@ class Cylinder1 extends ComponentBase {
     this.area = 12; // cm3
     this.springForce = 50; // kgf/m
     this.springForceMin = 2; // kgf
-    this.frictionForce = 0.5; // kgf
-    this.frictionStatic = 0.8; // kgf
-    this.pistonMass = 0.5; // kg
-    this.mass1 = 0;
+    this.massRod = 0.5; // kg
     this.speed = 0; // cm/s
     this.color1 = defaultColor;
     this.color1w = '#fff';
+    this.options = {
+      massLoad: 0,
+    }
+    this.frictionStatic = 0.8 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
   }
 
   vias() {
     const via1 = {x:this.x, y:this.y};
     return [via1];
+  }
+
+  validateOptions() {
+    this.options.massLoad = Number(this.options.massLoad);
+    if (isNaN(this.options.massLoad))
+      this.options.massLoad = 0;
+    if (this.options.massLoad > 100)
+      this.options.massLoad = 100;
+    if (this.options.massLoad < 0)
+      this.options.massLoad = 0;
+    this.frictionStatic = 0.8 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
   }
 
   reset () {
@@ -1699,7 +1716,7 @@ class Cylinder1 extends ComponentBase {
     this.pressure1 = this.mass1 / volume1;
 
 
-    // Compute piston movement     pressure
+    // Compute piston movement
     for(let i = 0; i < 10; i++) {
       volume1 = 100*this.position.actual * this.area + this.volumeMin;
       this.pressure1 = this.mass1 / volume1;
@@ -1708,16 +1725,21 @@ class Cylinder1 extends ComponentBase {
       let netForce = forcePiston - forceSpring;
 
       if (this.speed === 0) {
-        if (Math.abs(netForce) > this.frictionStatic)
-          netForce -= this.frictionForce*Math.sign(netForce);
-        else
-          netForce = 0;
-        this.speed = 0.1 * dt * netForce * 9.8 / this.pistonMass;
+        if (netForce > 0){
+          if (netForce > this.frictionStatic)
+            netForce -= this.frictionDynamic*Math.sign(netForce);
+          else
+            netForce = 0;
+          this.speed = 0.1 * dt * netForce * 9.8 / (this.massRod + this.options.massLoad);
+        }
+        else {
+          this.speed = 0.1 * dt * netForce * 9.8 / this.massRod;
+        }
       }
-      else {
-        netForce -= this.frictionForce*Math.sign(this.speed);
-        const dspeed = 0.1 * dt * netForce * 9.8 / this.pistonMass;
-        if (Math.sign(dspeed) !== Math.sign(this.speed) &&
+      else if (this.speed > 0) {
+        netForce -= this.frictionDynamic*Math.sign(this.speed);
+        const dspeed = 0.1 * dt * netForce * 9.8 / (this.massRod + this.options.massLoad);
+        if (Math.sign(dspeed) === Math.sign(this.speed) &&
           Math.abs(dspeed) > Math.abs(this.speed)) {
           this.speed = 0;
         }
@@ -1725,7 +1747,11 @@ class Cylinder1 extends ComponentBase {
           this.speed += dspeed;
         }
       }
-      this.position.actual += 0.1*dt * this.speed;
+      else {
+        this.speed += 0.1 * dt * netForce * 9.8 / this.massRod;
+      }
+
+      this.position.actual += 0.1 * dt * this.speed;
     }
 
     // Stop at begining and end. Shift piston image
@@ -1819,21 +1845,36 @@ class Cylinder2 extends ComponentBase {
     this.mass1 = 0;
     this.mass2 = 0;
     this.areaRod = this.area1 - this.area2;
-    this.frictionForce = 1; // kgf
-    this.frictionStatic = 2; //kgf
-    this.pistonMass = 0.5; // kg
+    this.massRod = 0.5; // kg
     this.position = {min:0, max:0.20, actual:0};
     this.speed = 0; // cm/s
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color1w = '#fff';
     this.color2w = '#fff';
+    this.options = {
+      massLoad: 5,
+    }
+    this.frictionStatic = 0.8 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
   }
 
   vias() {
     const via1 = {x:this.x, y:this.y};
     const via2 = {x:this.x+110, y:this.y};
     return [via1, via2];
+  }
+
+  validateOptions() {
+    this.options.massLoad = Number(this.options.massLoad);
+    if (isNaN(this.options.massLoad))
+      this.options.massLoad = 10;
+    if (this.options.massLoad > 100)
+      this.options.massLoad = 100;
+    if (this.options.massLoad < 0)
+      this.options.massLoad = 0;
+    this.frictionStatic = 0.8 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
   }
 
   reset () {
@@ -1927,14 +1968,14 @@ class Cylinder2 extends ComponentBase {
 
       if (this.speed === 0) {
         if (Math.abs(netForce) > this.frictionStatic)
-          netForce -= this.frictionForce*Math.sign(netForce);
+          netForce -= this.frictionDynamic*Math.sign(netForce);
         else
           netForce = 0;
-        this.speed += 0.1 * dt * netForce * 9.8 / this.pistonMass;
+        this.speed += 0.1 * dt * netForce * 9.8 / (this.massRod + this.options.massLoad);
       }
       else {
-        netForce -= this.frictionForce*Math.sign(this.speed);
-        const dspeed = 0.1 * dt * netForce * 9.8 / this.pistonMass;
+        netForce -= this.frictionDynamic*Math.sign(this.speed);
+        const dspeed = 0.1 * dt * netForce * 9.8 / (this.massRod + this.options.massLoad);
         if (Math.sign(dspeed) !== Math.sign(this.speed) &&
           Math.abs(dspeed) > Math.abs(this.speed)) {
           this.speed = 0;
@@ -2008,7 +2049,7 @@ class Valve22m extends ComponentBase {
       min: 0,
       max: 30,
       pos: 0,
-      speed: 200,
+      speed: 250,
     };
     this.conductance = conductanceBase;
     this.color1 = defaultColor;
@@ -2133,7 +2174,7 @@ class Valve32b extends ComponentBase {
       min: 0,
       max: 40,
       pos: 0,
-      speed: 200,
+      speed: 250,
     };
     this.conductance = conductanceBase;
     this.active = false;
@@ -2213,7 +2254,7 @@ class Valve32b extends ComponentBase {
        if (this.shift.pos < this.shift.min)
          this.shift.pos = this.shift.min;
     }
-    
+
     // Set colors
     this.color1 = this.colorPressure(node1.pressure);
     this.color2 = this.colorPressure(node2.pressure);
@@ -2293,7 +2334,7 @@ class Valve32m extends ComponentBase {
       min: 0,
       max: 40,
       pos: 0,
-      speed: 200,
+      speed: 250,
     };
     this.conductance = conductanceBase;
     this.active = false;
@@ -2440,7 +2481,7 @@ class Valve32r extends ComponentBase {
       min: 0,
       max: 40,
       pos: 0,
-      speed: 200,
+      speed: 250,
     };
     this.conductance = conductanceBase;
     this.active = false;
@@ -2588,19 +2629,19 @@ class Roller extends ComponentBase {
     super(pos);
     this.type = 'Roller';
     this.shift = 0;
-    this.maxShift = 10;
+    this.maxShift = 5;
     this.color = '#000';
     this.touching = false;
     this.options = {
       reference: '1.2',
     }
   }
-  
+
   validateOptions() {
     if (this.options.reference.length > 3)
       this.options.reference = this.options.reference.slice(0, 3);
   }
-  
+
   vias() {
     return [];
   }
@@ -2646,23 +2687,23 @@ class Roller extends ComponentBase {
 
   draw(ctx) {
     ctx.lineWidth = lineWidth;
-    this.drawRectangle(ctx, this.x-15, this.y-40, this.x+15, this.y-20);
+    this.drawRectangle(ctx, this.x-15, this.y-35, this.x+15, this.y-15);
 
     ctx.font = textFont;
     ctx.fillStyle = (this.selected) ? selectedColor : this.color;
     ctx.textAlign = "center";
-    ctx.fillText(this.options.reference, this.x, this.y-25);
+    ctx.fillText(this.options.reference, this.x, this.y-20);
     ctx.textAlign = "start";
 
     let posY = this.y - this.shift;
     ctx.beginPath();
     ctx.moveTo(this.x-4, posY-4);
-    ctx.lineTo(this.x-4, this.y-20);
+    ctx.lineTo(this.x-4, this.y-15);
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(this.x+4, posY-4);
-    ctx.lineTo(this.x+4, this.y-20);
+    ctx.lineTo(this.x+4, this.y-15);
     ctx.stroke();
 
     ctx.beginPath();
@@ -2683,7 +2724,7 @@ class Valve32p extends ComponentBase {
       min: 0,
       max: 40,
       pos: 0,
-      speed: 200,
+      speed: 250,
     };
     this.conductance = conductanceBase;
     this.active = false;
@@ -2843,7 +2884,7 @@ class Valve52m extends ComponentBase {
       min: 0,
       max: 60,
       pos: 0,
-      speed: 200,
+      speed: 350,
     };
     this.conductance = conductanceBase;
     this.active = false;
@@ -2972,7 +3013,7 @@ class Valve52p extends ComponentBase {
       min: 0,
       max: 60,
       pos: 0,
-      speed: 200,
+      speed: 350,
     };
     this.conductance = conductanceBase;
     this.active = false;
@@ -3253,8 +3294,8 @@ class UIController {
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") { this._escape(); }
       if (event.key === "Delete") { this._delete(); }
-      if (drawMode !== null) {
-        if (event.key === "s" || event.key === "S") { simulationStep(); }
+      if (drawMode === null) {
+        if (event.key === 's' || event.key === 'S') { simulationStep(); }
       }
       this.renderer.draw();
     });
@@ -3320,17 +3361,22 @@ class UIController {
           }
           if (comp.type === 'ValveFlow') {
             componentEdit = comp;
-            textPromptAssign('conductance', 'Conductance:');
+            textPromptAssign('conductance', 'Conductance (10-1000):');
             break;
           }
           if (comp.type === 'Compressor') {
             componentEdit = comp;
-            textPromptAssign('pressure', 'Pressure:');
+            textPromptAssign('pressure', 'Pressure (0.5 - ' + compressorPressure + ' bar):');
             break;
           }
           if (['Valve32r', 'Roller'].includes(comp.type)) {
             componentEdit = comp;
             textPromptAssign('reference', 'Reference:');
+            break;
+          }
+          if (['Cylinder1', 'Cylinder2'].includes(comp.type)) {
+            componentEdit = comp;
+            textPromptAssign('massLoad', 'Mass Load (kg):');
             break;
           }
         }
@@ -3598,6 +3644,7 @@ function loadSchema(schematicJSON) {
     if (comp.type === 'Pipe')       newcomp = new Pipe(comp.init, comp.end);
     if (newcomp) {
       Object.assign(newcomp.options, comp.options);
+      newcomp.validateOptions();
       newcomp.timestamp = comp.stamp;
       components.push(newcomp);
     }

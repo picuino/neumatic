@@ -1650,7 +1650,7 @@ class Cylinder1 extends ComponentBase {
       massLoad: 0,
     }
     this.frictionStatic = 0.8 * this.options.massLoad; // kgf
-    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.6 * this.options.massLoad; // kgf
   }
 
   vias() {
@@ -1667,7 +1667,7 @@ class Cylinder1 extends ComponentBase {
     if (this.options.massLoad < 0)
       this.options.massLoad = 0;
     this.frictionStatic = 0.8 * this.options.massLoad; // kgf
-    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.6 * this.options.massLoad; // kgf
   }
 
   reset () {
@@ -1727,7 +1727,7 @@ class Cylinder1 extends ComponentBase {
       if (this.speed === 0) {
         if (netForce > 0){
           if (netForce > this.frictionStatic)
-            netForce -= this.frictionDynamic*Math.sign(netForce);
+            netForce -= this.frictionDynamic * Math.sign(netForce);
           else
             netForce = 0;
           this.speed = 0.1 * dt * netForce * 9.8 / (this.massRod + this.options.massLoad);
@@ -1737,7 +1737,7 @@ class Cylinder1 extends ComponentBase {
         }
       }
       else if (this.speed > 0) {
-        netForce -= this.frictionDynamic*Math.sign(this.speed);
+        netForce -= this.frictionDynamic * Math.sign(this.speed);
         const dspeed = 0.1 * dt * netForce * 9.8 / (this.massRod + this.options.massLoad);
         if (Math.sign(dspeed) === Math.sign(this.speed) &&
           Math.abs(dspeed) > Math.abs(this.speed)) {
@@ -1856,7 +1856,7 @@ class Cylinder2 extends ComponentBase {
       massLoad: 5,
     }
     this.frictionStatic = 0.8 * this.options.massLoad; // kgf
-    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.6 * this.options.massLoad; // kgf
   }
 
   vias() {
@@ -1874,7 +1874,7 @@ class Cylinder2 extends ComponentBase {
     if (this.options.massLoad < 0)
       this.options.massLoad = 0;
     this.frictionStatic = 0.8 * this.options.massLoad; // kgf
-    this.frictionDynamic = 0.5 * this.options.massLoad; // kgf
+    this.frictionDynamic = 0.6 * this.options.massLoad; // kgf
   }
 
   reset () {

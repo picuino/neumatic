@@ -12,8 +12,15 @@ TO-DO
 
 * Añadir ruido blanco en los escapes de aire para dar mayor realismo.
 
-02/01/2026
+03/01/2026
 ----------
+* Publicar versión 2.7.
+
+* Mensaje de Picuino Pneumatic Simulator en minúscula.
+
+* Corregido el color al mover las válvulas AND y OR.
+
+* Añadidos esquemas útiles para el tutorial.
 
 
 31/12/2025

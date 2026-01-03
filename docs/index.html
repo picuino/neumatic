@@ -367,7 +367,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.6';
+const programVersion = '2.7';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -1441,14 +1441,14 @@ class ValveOr extends ComponentBase {
   }
 
   drawValveOr(ctx) {
-    ctx.strokeStyle = this.color1;
+    ctx.strokeStyle = (this.selected) ? selectedColor : this.color1;
     ctx.beginPath();
     ctx.moveTo(this.x-18, this.y+20);
     ctx.lineTo(this.x-28, this.y+30);
     ctx.lineTo(this.x-18, this.y+40);
     ctx.stroke();
 
-    ctx.strokeStyle = this.color2;
+    ctx.strokeStyle = (this.selected) ? selectedColor : this.color2;
     ctx.beginPath();
     ctx.moveTo(this.x+18, this.y+20);
     ctx.lineTo(this.x+28, this.y+30);
@@ -1460,7 +1460,7 @@ class ValveOr extends ComponentBase {
 
   drawMovement(ctx) {
     const posX = this.x + this.shift;
-    ctx.strokeStyle = defaultColor;
+    ctx.strokeStyle = (this.selected) ? selectedColor : defaultColor;
     ctx.beginPath();
     ctx.arc(posX-14,this.y+30, 8, 0, Math.PI*2);
     ctx.stroke();
@@ -1552,6 +1552,7 @@ class ValveAnd extends ComponentBase {
   drawValveAnd(ctx) {
     this.drawRectangle(ctx, this.x-30, this.y+17, this.x+30, this.y+43);
 
+    ctx.strokeStyle = (this.selected) ? selectedColor : defaultColor;
     ctx.beginPath();
     ctx.moveTo(this.x-15, this.y+17);
     ctx.lineTo(this.x-15, this.y+26);
@@ -3246,7 +3247,7 @@ class Renderer{
     ctx.textAlign = "start";
     ctx.font = textFont;
     ctx.fillStyle = '#aaa';
-    ctx.fillText('PICUINO PNEUMATIC SIMULATOR V' + programVersion, 8, 18);
+    ctx.fillText('Picuino Pneumatic Simulator v' + programVersion, 8, 18);
     this.drawPosition(mousePosition);
 
     for (const comp of this.engine.components) {

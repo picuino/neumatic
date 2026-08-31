@@ -144,6 +144,131 @@
     border: 1px solid #000;
   }
 
+  /* Simulation toolbar */
+  .sim-toolbar {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 0 8px;
+    gap: 2px;
+  }
+
+  .sim-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #444;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .sim-btn:hover {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+
+  .sim-btn:active {
+    background: #ddd;
+  }
+
+  .sim-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sim-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    font-size: 13px;
+    font-family: monospace;
+    color: #666;
+    user-select: none;
+    min-width: 80px;
+  }
+
+  .sim-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #aaa;
+    flex-shrink: 0;
+  }
+
+  .sim-dot.running {
+    background: #22c55e;
+    box-shadow: 0 0 4px #22c55e;
+    animation: sim-pulse 1s ease-in-out infinite;
+  }
+
+  .sim-dot.paused {
+    background: #f59e0b;
+  }
+
+  @keyframes sim-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .sim-separator {
+    width: 1px;
+    height: 20px;
+    background: #ccc;
+    margin: 0 4px;
+  }
+
+  .sim-btn.active {
+    background: #e8f0fe;
+    border-color: #7aa7e8;
+    color: #1a56b0;
+  }
+
+  /* Motion (displacement-step) diagram panel */
+  .motion-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid #000;
+    z-index: 900;
+  }
+
+  .motion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    user-select: none;
+  }
+
+  .motion-close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 6px;
+    color: #444;
+  }
+
+  .motion-close:hover {
+    color: #000;
+  }
+
+  #motionCanvas {
+    display: block;
+    width: 100%;
+  }
+
   </style>
 </head>
 
@@ -163,6 +288,7 @@
             <ul class="submenu">
               <li><a href="#" data-action="enLang" data-i18n="enLang">English</a></li>
               <li><a href="#" data-action="esLang" data-i18n="esLang">Spanish</a></li>
+              <li><a href="#" data-action="ptLang" data-i18n="ptLang">Portuguese</a></li>
             </ul>
           </li>
 
@@ -180,9 +306,50 @@
           <li><a href="#" data-action="fSavePNG" data-i18n="fSavePNG">Save Image</a></li>
           <li><a href="#" data-action="fCompare" data-i18n="fCompare">Compare Files</a></li>
 
+          <li><a href="#" data-action="fResetView" data-i18n="fResetView">Reset View</a></li>
+
           <li><a href="#" data-action="fAbout" data-i18n="fAbout">About...</a></li>
         </ul>
       </li>
+
+
+      <li class="menu-item">
+        <div class="menu-titulo" data-i18n="examplesMenu">Examples</div>
+        <ul class="submenu">
+
+          <li class="has-submenu">
+            <a href="#" data-i18n="singleMenu">Single</a>
+            <ul class="submenu">
+              <li><a href="./index.html?loadFile=single-22.txt" target="_blank" data-i18n="eSingle01">Valve 2/2</a></li>
+              <li><a href="./index.html?loadFile=single-32.txt" target="_blank" data-i18n="eSingle02">Valve 3/2</a></li>
+              <li><a href="./index.html?loadFile=single-32-auto.txt" target="_blank" data-i18n="eSingle03">Valve 3/2 auto</a></li>
+              <li><a href="./index.html?loadFile=single-32-and.txt" target="_blank" data-i18n="eSingle04">Valve AND</a></li>
+              <li><a href="./index.html?loadFile=single-32-or.txt" target="_blank" data-i18n="eSingle05">Valve OR</a></li>
+              <li><a href="./index.html?loadFile=single-32-x2.txt" target="_blank" data-i18n="eSingle06">Valve 3/2 x2</a></li>
+            </ul>
+          </li>
+
+          <li class="has-submenu">
+            <a href="#" data-i18n="doubleMenu">Double</a>
+            <ul class="submenu">
+              <li><a href="./index.html?loadFile=double-32-manual.txt"  target="_blank" data-i18n="eDouble01">Valve 3/2 manual</a></li>
+              <li><a href="./index.html?loadFile=double-52-manual.txt"  target="_blank" data-i18n="eDouble02">Valve 5/2 manual</a></li>
+              <li><a href="./index.html?loadFile=double-52-piloted.txt" target="_blank" data-i18n="eDouble03">Valve 5/2 pneu.</a></li>
+              <li><a href="./index.html?loadFile=double-52-auto.txt"    target="_blank" data-i18n="eDouble04">Valve 5/2 + Roller + Flow</a></li>
+            </ul>
+          </li>
+
+          <li class="has-submenu">
+            <a href="#" data-i18n="multipleMenu">Multiple</a>
+            <ul class="submenu">
+              <li><a href="./index.html?loadFile=multi-abab.txt"  target="_blank" data-i18n="eMulti01">A+ B+ A- B-</a></li>
+              <li><a href="./index.html?loadFile=multi-abba.txt"  target="_blank" data-i18n="eMulti02">A+ B+ B- A-</a></li>
+            </ul>
+          </li>
+
+        </ul>
+      </li>
+
 
       <li class="menu-item">
         <div class="menu-titulo" data-i18n="drawMenu">Draw</div>
@@ -230,62 +397,44 @@
         </ul>
       </li>
 
-      <li class="menu-item">
-        <div class="menu-titulo" data-i18n="examplesMenu">Examples</div>
-        <ul class="submenu">
-
-          <li class="has-submenu">
-            <a href="#" data-i18n="singleMenu">Single</a>
-            <ul class="submenu">
-              <li><a href="./index.html?loadFile=single-22.txt" target="_blank" data-i18n="eSingle01">Valve 2/2</a></li>
-              <li><a href="./index.html?loadFile=single-32.txt" target="_blank" data-i18n="eSingle02">Valve 3/2</a></li>
-              <li><a href="./index.html?loadFile=single-32-auto.txt" target="_blank" data-i18n="eSingle03">Valve 3/2 auto</a></li>
-              <li><a href="./index.html?loadFile=single-32-and.txt" target="_blank" data-i18n="eSingle04">Valve AND</a></li>
-              <li><a href="./index.html?loadFile=single-32-or.txt" target="_blank" data-i18n="eSingle05">Valve OR</a></li>
-              <li><a href="./index.html?loadFile=single-32-x2.txt" target="_blank" data-i18n="eSingle06">Valve 3/2 x2</a></li>
-            </ul>
-          </li>
-
-          <li class="has-submenu">
-            <a href="#" data-i18n="doubleMenu">Double</a>
-            <ul class="submenu">
-              <li><a href="./index.html?loadFile=double-32-manual.txt"  target="_blank" data-i18n="eDouble01">Valve 3/2 manual</a></li>
-              <li><a href="./index.html?loadFile=double-52-manual.txt"  target="_blank" data-i18n="eDouble02">Valve 5/2 manual</a></li>
-              <li><a href="./index.html?loadFile=double-52-piloted.txt" target="_blank" data-i18n="eDouble03">Valve 5/2 pneu.</a></li>
-              <li><a href="./index.html?loadFile=double-52-auto.txt"    target="_blank" data-i18n="eDouble04">Valve 5/2 + Roller + Flow</a></li>
-            </ul>
-          </li>
-
-          <li class="has-submenu">
-            <a href="#" data-i18n="multipleMenu">Multiple</a>
-            <ul class="submenu">
-              <li><a href="./index.html?loadFile=multi-abab.txt"  target="_blank" data-i18n="eMulti01">A+ B+ A- B-</a></li>
-              <li><a href="./index.html?loadFile=multi-abba.txt"  target="_blank" data-i18n="eMulti02">A+ B+ B- A-</a></li>
-            </ul>
-          </li>
-
-        </ul>
-      </li>
 
       <li class="menu-item">
         <div class="menu-titulo" data-i18n="editMenu">Edit</div>
         <ul class="submenu">
+          <li><a href="#" data-action="eUndo"   data-i18n="eUndo">Undo (Ctrl+Z)</a></li>
+          <li><a href="#" data-action="eRedo"   data-i18n="eRedo">Redo (Ctrl+Y)</a></li>
           <li><a href="#" data-action="eDelete" data-i18n="eDelete">Delete</a></li>
           <li><a href="#" data-action="eMove"   data-i18n="eMove">Move</a></li>
           <li><a href="#" data-action="eOptions" data-i18n="eOptions">Options</a></li>
           <li><a href="#" data-action="eFlip" data-i18n="eFlip">Flip</a></li>
+          <li><a href="#" data-action="eSelect" data-i18n="eSelect">Select</a></li>
+          <li><a href="#" data-action="eGrid"   data-i18n="eGrid" id="menuGridItem">Toggle Grid</a></li>
         </ul>
       </li>
 
-      <li class="menu-item">
-        <div class="menu-titulo" data-i18n="simulateMenu">Simulate</div>
-        <ul class="submenu">
-          <li><a href="#" data-action="sInit"     data-i18n="sInit">Init</a></li>
-          <li><a href="#" data-action="sStep"     data-i18n="sStep">Step 's'</a></li>
-          <li><a href="#" data-action="sStop"     data-i18n="sStop">Stop</a></li>
-          <li><a href="#" data-action="sContinue" data-i18n="sContinue">Continue</a></li>
-          <li><a href="#" data-action="sReset" data-i18n="sReset">Reset</a></li>
-        </ul>
+
+      <li class="sim-toolbar">
+        <div class="sim-separator"></div>
+        <button class="sim-btn" data-action="sPlayPause" data-i18n-title="sInit" title="Play">
+          <svg id="simIconPlay" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 13,8 3,15"/></svg>
+          <svg id="simIconPause" viewBox="0 0 16 16" fill="currentColor" style="display:none"><rect x="2" y="1" width="4" height="14"/><rect x="10" y="1" width="4" height="14"/></svg>
+        </button>
+        <button class="sim-btn" data-action="sStep" data-i18n-title="sStep" title="Step (s)">
+          <svg viewBox="0 0 16 16" fill="currentColor"><polygon points="2,1 9,8 2,15"/><rect x="11" y="1" width="3" height="14"/></svg>
+        </button>
+        <button class="sim-btn" data-action="sReset" data-i18n-title="sReset" title="Reset">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+		  <path d="M2 8a6 6 0 0 1 10.5-4M14 8a6 6 0 0 1-10.5 4"/><polyline points="2,2 2,5.5 5.5,5.5"/>
+		  <polyline points="14,14 14,10.5 10.5,10.5"/></svg>
+        </button>
+        <button class="sim-btn" data-action="sMotion" id="motionToggleBtn" data-i18n-title="sMotion" title="Motion diagram">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,13 4,13 6,3 10,3 12,13 15,13"/></svg>
+        </button>
+        <div class="sim-separator"></div>
+        <span class="sim-status" id="simStatus">
+          <span class="sim-dot" id="simDot"></span>
+          <span id="simTime">0.00s</span>
+        </span>
       </li>
 
     </ul>
@@ -293,13 +442,21 @@
 
   <canvas id="canvas" class="canvas"></canvas>
 
+  <div id="motionPanel" class="motion-panel" style="display:none">
+    <div class="motion-header">
+      <span data-i18n="motionTitle">Displacement-step diagram</span>
+      <button class="motion-close" data-action="sMotion" title="Close">&times;</button>
+    </div>
+    <canvas id="motionCanvas"></canvas>
+  </div>
+
   <dialog id="textPrompt">
     <form method="dialog">
       <p id="messageInput">Text:</p>
       <input type="text" name="answer" id="textInput" placeholder="Text...">
       <div style="margin-top: 16px;">
-        <button id="confirmBtn" value="default">Accept</button>
-        <button id="cancelBtn" value="cancel" formnovalidate>Cancel</button>
+        <button id="confirmBtn" value="default" data-i18n="promptAccept">Accept</button>
+        <button id="cancelBtn" value="cancel" formnovalidate data-i18n="promptCancel">Cancel</button>
       </div>
     </form>
   </dialog>
@@ -318,7 +475,7 @@
 
   <dialog id="aboutWindow">
     <div>
-    <h2>Picuino Pneumatic Simulator</h2>
+    <h2 id="aboutTitle">Picuino Pneumatic Simulator</h2>
     <p><strong>Copyright © 2025 Carlos Félix Pardo Martín.</strong></p>
     <p><strong>Email:</strong> <span style="unicode-bidi:bidi-override; direction: rtl;">moc.oniu<span style="display:none">n</span>cip&#64;sol<span style="display:none">novale</span>rac<span></p>
     <p><strong>Original:</strong> <a href="https://www.picuino.com/neumatic/index.html" target="_blank">Pneumatic simulator original web page</a>.</p>
@@ -326,6 +483,7 @@
       <a href="https://www.picuino.com/en/mecan-neumatic-index.html" target="_blank">Pneumatics tutorial (en)</a>.
       <a href="https://www.picuino.com/es/mecan-neumatic-index.html" target="_blank">Tutorial de neumática (es)</a>.</p>
     <p><strong>GitHub:</strong> <a href="https://github.com/picuino/neumatic/" target="_blank">Pneumatic Simulator source code</a>.</p>
+	<p><strong>Contributors:</strong> Carlos Dias Jr. (<a href="https://github.com/Carlos-Jr" target="_blank">github.com/Carlos-Jr</a>).</p>
     <p>
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -353,6 +511,8 @@
 
    Copyright © 2025 Carlos Félix Pardo Martín.
 
+   Contributors: Carlos Dias Jr. (https://github.com/Carlos-Jr).
+
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -368,7 +528,7 @@
 */
 
 /* Global constants and variables */
-const programVersion = '2.8';
+const programVersion = '2.9';
 const canvas = document.getElementById('canvas');
 const grid = 10;
 const lineWidth = 2;
@@ -377,8 +537,8 @@ const selectedColor = '#e06000';
 const defaultColor = '#000000';
 const textFont = '14px sans-serif';
 const canvasScale = 2;
-const minCanvasWidth = 320 * canvasScale;
-const minCanvasHeight = 320 * canvasScale;
+const minCanvasWidth = 500 * canvasScale;
+const minCanvasHeight = 500 * canvasScale;
 const airPressure = 1; // bar absolute
 const compressorPressure = 6; // bar relative
 const conductanceBase = 2000;
@@ -400,6 +560,56 @@ let stepTime = null;
 let simulationActive = false;
 let activateValvesTouchingBody = true;
 let renderTime = 0;
+let ghostComponent = null;
+let positionPipeEndpoint = null;
+let simulationElapsedMs = 0;
+
+/* Pan state */
+let panOffset = { x: 0, y: 0 };
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let panButton = -1;
+let spaceHeld = false;
+
+/* Zoom state */
+let zoomLevel = 1.0;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 2.0;
+const ZOOM_STEP = 0.1;
+
+/* Multi-select state */
+let selectionRect = null;
+let clipboard = [];
+let multiDragOffset = [];
+let isMultiDragging = false;
+
+/* Grid display */
+let showGrid = true;
+
+/* Undo/Redo history (snapshots of serialized components) */
+let undoStack = [];
+let redoStack = [];
+const undoMaxDepth = 100;
+
+/* Motion (displacement-step) diagram state */
+let motionVisible = false;
+const motionData = new Map();      // cylinder component -> [{t, p}, ...]
+const motionWindowMs = 12000;      // visible time window
+const motionKeepMs = 60000;        // sample retention
+const motionColors = ['#0066cc', '#cc3300', '#009933', '#9933cc', '#cc9900', '#0099aa'];
+
+
+function createGhostComponent(position) {
+  if (!componentType || componentType === 'Pipe' || componentType === 'Text') return null;
+  const constructors = {
+    Compressor, Manometer, Escape, Cylinder1, Cylinder2,
+    Valve22m, Valve32b, Valve32m, Valve32p, Valve32r, Roller,
+    Valve52m, Valve52p, ValveNret, ValveFlow, ValveOr, ValveAnd
+  };
+  const Ctor = constructors[componentType];
+  if (Ctor) return new Ctor(position);
+  return null;
+}
 
 
 /*************************************************************************/
@@ -452,16 +662,31 @@ const translations = {
     cEscape: 'Escape',
     cText: 'Text',
     editMenu: 'Edit',
+    eUndo: 'Undo (Ctrl+Z)',
+    eRedo: 'Redo (Ctrl+Y)',
     eDelete: 'Delete',
     eMove: 'Move',
     eOptions: 'Options',
     eFlip: 'Flip',
+    eSelect: 'Select',
+    fResetView: 'Reset View',
+    eGrid: 'Toggle Grid',
+    promptAccept: 'Accept',
+    promptCancel: 'Cancel',
+    promptText: 'Text:',
+    promptConductance: 'Conductance (10-1000):',
+    promptPressure: 'Pressure (0.5 - 6 bar):',
+    promptReference: 'Reference:',
+    promptMassLoad: 'Mass Load (kg):',
     simulateMenu: 'Simulate',
     sInit: 'Init',
     sStep: "Step 's'",
     sStop: 'Stop',
     sContinue: 'Continue',
     sReset: 'Reset',
+    sMotion: 'Displacement-step diagram',
+    motionTitle: 'Displacement-step diagram',
+    motionEmpty: 'No cylinders in the schematic. Add a cylinder and run the simulation.',
   },
 
   es: {
@@ -510,16 +735,103 @@ const translations = {
     cEscape: 'Escape',
     cText: 'Texto',
     editMenu: 'Editar',
+    eUndo: 'Deshacer (Ctrl+Z)',
+    eRedo: 'Rehacer (Ctrl+Y)',
     eDelete: 'Borrar',
     eMove: 'Mover',
     eOptions: 'Opciones',
     eFlip: 'Voltear',
+    eSelect: 'Seleccionar',
+    fResetView: 'Restablecer Vista',
+    eGrid: 'Alternar cuadrícula',
+    promptAccept: 'Aceptar',
+    promptCancel: 'Cancelar',
+    promptText: 'Texto:',
+    promptConductance: 'Conductancia (10-1000):',
+    promptPressure: 'Presión (0.5 - 6 bar):',
+    promptReference: 'Referencia:',
+    promptMassLoad: 'Masa de carga (kg):',
     simulateMenu: 'Simular',
     sInit: 'Iniciar',
     sStep: "Paso 's'",
     sStop: 'Detener',
     sContinue: 'Continuar',
     sReset: 'Reiniciar',
+    sMotion: 'Diagrama espacio-fase',
+    motionTitle: 'Diagrama espacio-fase',
+    motionEmpty: 'No hay cilindros en el esquema. Añade un cilindro y ejecuta la simulación.',
+  },
+
+  pt: {
+    title: 'Simulador Pneumático - Picuino',
+    closeConfirm: "Tem certeza de que deseja sair desta página?",
+    aboutCloseBtn: 'Fechar Janela',
+    compareCloseBtn: 'Fechar Janela',
+    compareWindowTitle: 'Comparador de Esquemas Pneumáticos',
+    compareBtn: 'Comparar Arquivos',
+    fileMenu: 'Arquivo',
+    fSwap: 'Trocar tela',
+    fNew: 'Novo Esquema',
+    fOpen: 'Abrir Esquema',
+    fSave: 'Salvar Esquema',
+    fSaveStudent: 'Aluno',
+    fSaveTeacher: 'Professor',
+    fSavePNG: 'Salvar Imagem',
+    fCompare: 'Comparar Arquivos',
+    fAbout: 'Sobre...',
+    examplesMenu: 'Exemplos',
+    singleMenu: 'Simples',
+    doubleMenu: 'Duplo',
+    multipleMenu: 'Múltiplo',
+    drawMenu: 'Desenhar',
+    valvesMenu: 'Válvulas',
+    cValve22m: 'Válvula 2/2 manual',
+    cValve32b: 'Válvula 3/2 botão',
+    cValve32m: 'Válvula 3/2 manual',
+    cValve32r: 'Válvula 3/2 com rolete',
+    cRoller: 'Rolete de válvula',
+    cValve32p: 'Válvula 3/2 pilotada pneu.',
+    cValve52m: 'Válvula 5/2 manual',
+    cValve52p: 'Válvula 5/2 pilotada pneu.',
+    auxValvesMenu: 'Válvulas aux.',
+    cValveNret: 'Válvula de retenção',
+    cValveFlow: 'Válvula reguladora de fluxo',
+    cValveOr: 'Válvula seletora',
+    cValveAnd: 'Válvula de simultaneidade',
+    cylinderMenu: 'Cilindros',
+    cCylinder1: 'Simples ação',
+    cCylinder2: 'Dupla ação',
+    cPress: 'Compressor',
+    cManometer: 'Manômetro',
+    cPipe: 'Tubulação',
+    cEscape: 'Escape',
+    cText: 'Texto',
+    editMenu: 'Editar',
+    eUndo: 'Desfazer (Ctrl+Z)',
+    eRedo: 'Refazer (Ctrl+Y)',
+    eDelete: 'Excluir',
+    eMove: 'Mover',
+    eOptions: 'Opções',
+    eFlip: 'Espelhar',
+    eSelect: 'Selecionar',
+    fResetView: 'Redefinir Vista',
+    eGrid: 'Alternar grade',
+    promptAccept: 'Aceitar',
+    promptCancel: 'Cancelar',
+    promptText: 'Texto:',
+    promptConductance: 'Condutância (10-1000):',
+    promptPressure: 'Pressão (0.5 - 6 bar):',
+    promptReference: 'Referência:',
+    promptMassLoad: 'Carga de massa (kg):',
+    simulateMenu: 'Simular',
+    sInit: 'Iniciar',
+    sStep: "Passo 's'",
+    sStop: 'Parar',
+    sContinue: 'Continuar',
+    sReset: 'Reiniciar',
+    sMotion: 'Diagrama trajeto-passo',
+    motionTitle: 'Diagrama trajeto-passo',
+    motionEmpty: 'Nenhum cilindro no esquema. Adicione um cilindro e execute a simulação.',
   }
 }
 
@@ -553,7 +865,7 @@ document.addEventListener("click", (e) => {
 
 /* menu actions */
 document.addEventListener("click", (e) => {
-  const item = e.target.closest("a[data-action]");
+  const item = e.target.closest("[data-action]");
   if (!item) return;
 
   const action = item.dataset.action;
@@ -568,6 +880,7 @@ document.addEventListener("click", (e) => {
     fCompare: () => { compareFilesShow(); },
     enLang: () => { enLang(); },
     esLang: () => { esLang(); },
+    ptLang: () => { ptLang(); },
     fAbout: () => { aboutWindowShow(); },
 
     cPipe: () =>      { simulationStop(); drawMode='component'; componentType='Pipe'; },
@@ -591,19 +904,30 @@ document.addEventListener("click", (e) => {
     cCylinder1: () => { simulationStop(); drawMode='component'; componentType='Cylinder1'; },
     cCylinder2: () => { simulationStop(); drawMode='component'; componentType='Cylinder2'; },
 
+    eUndo: () => { undo(); },
+    eRedo: () => { redo(); },
     eDelete: () => { simulationStop(); drawMode='Delete'; },
     eMove: () => { simulationStop(); drawMode='Move'; },
     eOptions: () => { simulationStop(); drawMode='Options'; },
     eFlip: () => { simulationStop(); drawMode='Flip'; },
+    eSelect: () => { simulationStop(); drawMode='Select'; },
+    eGrid: () => { toggleGrid(); },
+    fResetView: () => { panOffset = {x:0, y:0}; zoomLevel = 1; renderer.draw(); },
 
-    sInit: () => { simulationInit(); },
+    sPlayPause: () => { simulationPlayPause(); },
     sStep: () => { simulationStep(); },
-    sStop: () => { simulationStop(); },
-    sContinue: () => { simulationContinue(); },
     sReset: () => { simulationReset(); },
+    sMotion: () => { toggleMotionDiagram(); },
   };
 
   actions[action]?.();
+
+  // Create ghost preview for component draw mode
+  if (drawMode === 'component' && componentType !== 'Pipe') {
+    ghostComponent = createGhostComponent(mousePosition || {x: 0, y: 0});
+  } else {
+    ghostComponent = null;
+  }
 
   // Close submenus after action
   document.querySelectorAll(".submenu").forEach(sm =>
@@ -938,7 +1262,7 @@ class Text extends ComponentBase {
     this.y = snap(pos.y, grid*0.5);
     this.type = 'Text';
     this.width = 30;
-    this.grid = grid*0.5;
+    this.grid = grid * 0.5;
     this.color = defaultColor;
     this.options = {
       text: 'Text',
@@ -1044,6 +1368,7 @@ class Manometer extends ComponentBase {
   }
 
   reset() {
+    this.pressure = airPressure;
     this.color = defaultColor;
   }
 
@@ -1496,7 +1821,7 @@ class ValveAnd extends ComponentBase {
   }
 
   reset () {
-    this.shift = maxShift * 0.5;
+    this.shift = this.maxShift * 0.5;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -1680,6 +2005,7 @@ class Cylinder1 extends ComponentBase {
     this.position.actual = this.position.min;
     this.pressure1 = airPressure;
     this.mass1 = 0;
+    this.speed = 0;
     this.shift = 0;
     this.color1 = defaultColor;
     this.color1w = '#fff';
@@ -1889,6 +2215,7 @@ class Cylinder2 extends ComponentBase {
     this.pressure2 = airPressure;
     this.mass1 = 0;
     this.mass2 = 0;
+    this.speed = 0;
     this.shift = 0;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
@@ -2073,6 +2400,7 @@ class Valve22m extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
   }
@@ -2203,6 +2531,8 @@ class Valve32b extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
+    this.timeActive = 0;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -2361,6 +2691,7 @@ class Valve32m extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -2515,6 +2846,7 @@ class Valve32r extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -2760,6 +3092,7 @@ class Valve32p extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -2910,6 +3243,7 @@ class Valve42m extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+	this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -3031,6 +3365,7 @@ class Valve52m extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -3165,6 +3500,7 @@ class Valve52p extends ComponentBase {
 
   reset () {
     this.shift.pos = this.shift.min;
+    this.active = false;
     this.color1 = defaultColor;
     this.color2 = defaultColor;
     this.color3 = defaultColor;
@@ -3365,8 +3701,36 @@ class Renderer{
 
   draw() {
     const ctx = this.ctx;
+    const logW = this.canvas.width / canvasScale;
+    const logH = this.canvas.height / canvasScale;
+
+    // Clear canvas (screen space)
     ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillRect(0, 0, logW, logH);
+
+    // Background grid
+    if (showGrid) {
+      const visX1 = -panOffset.x / zoomLevel;
+      const visY1 = -panOffset.y / zoomLevel;
+      const visX2 = (logW - panOffset.x) / zoomLevel;
+      const visY2 = (logH - panOffset.y) / zoomLevel;
+      const startX = Math.floor(visX1 / grid) * grid;
+      const startY = Math.floor(visY1 / grid) * grid;
+      ctx.save();
+      ctx.strokeStyle = '#eee';
+      ctx.lineWidth = 0.5 / zoomLevel;
+      ctx.beginPath();
+      for (let x = startX; x <= visX2 + grid; x += grid) {
+        ctx.moveTo(x, visY1);
+        ctx.lineTo(x, visY2);
+      }
+      for (let y = startY; y <= visY2 + grid; y += grid) {
+        ctx.moveTo(visX1, y);
+        ctx.lineTo(visX2, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.textAlign = "start";
     ctx.font = textFont;
@@ -3374,9 +3738,45 @@ class Renderer{
     ctx.fillText('Picuino Pneumatic Simulator v' + programVersion, 8, 18);
     this.drawPosition(mousePosition);
 
+    // World space: pan + zoom
+    ctx.save();
+    ctx.translate(panOffset.x, panOffset.y);
+    ctx.scale(zoomLevel, zoomLevel);
+
     for (const comp of this.engine.components) {
       comp.draw(ctx);
     }
+
+    // Ghost preview for component placement
+    if (ghostComponent) {
+      ctx.globalAlpha = 0.4;
+      ghostComponent.draw(ctx);
+      ctx.globalAlpha = 1.0;
+    }
+
+    // Rubber-band selection rectangle
+    if (selectionRect) {
+      const rx = Math.min(selectionRect.x1, selectionRect.x2);
+      const ry = Math.min(selectionRect.y1, selectionRect.y2);
+      const rw = Math.abs(selectionRect.x2 - selectionRect.x1);
+      const rh = Math.abs(selectionRect.y2 - selectionRect.y1);
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0,100,255,0.8)';
+      ctx.fillStyle = 'rgba(0,100,255,0.1)';
+      ctx.lineWidth = 1 / zoomLevel;
+      ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]);
+      ctx.fillRect(rx, ry, rw, rh);
+      ctx.strokeRect(rx, ry, rw, rh);
+      ctx.restore();
+    }
+
+    ctx.restore();
+
+    // Screen-space overlays
+    this.drawPosition(mousePosition);
+
+    // Live displacement-step diagram
+    if (motionVisible) motionDiagramDraw();
   }
 
   drawPosition(position) {
@@ -3413,28 +3813,148 @@ class UIController {
     this.positionCompInit = {x:0, y:0};
 
     this.canvas.addEventListener('mousedown', e => this._onDown(e));
+    this.canvas.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      this._escape();
+      this.renderer.draw();
+    });
     window.addEventListener('mousemove', e => this._onMove(e));
     window.addEventListener('mouseup', e => this._onUp(e));
     window.addEventListener("resize", e => this._resizeCanvas());
+
+    // Zoom via scroll wheel
+    this.canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const r = this.canvas.getBoundingClientRect();
+      const cssX = e.clientX - r.left;
+      const cssY = e.clientY - r.top;
+      const oldZoom = zoomLevel;
+      const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+      zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomLevel + delta));
+      const scale = zoomLevel / oldZoom;
+      panOffset.x = cssX - scale * (cssX - panOffset.x);
+      panOffset.y = cssY - scale * (cssY - panOffset.y);
+      this.renderer.draw();
+    }, { passive: false });
+
     document.addEventListener("keydown", event => {
+      // Ignore canvas shortcuts while any modal dialog is open
+      if (document.querySelector('dialog[open]')) {
+        return;
+      }
+
+      // Space: enter pan mode
+      if (event.key === ' ' && !event.ctrlKey) {
+        event.preventDefault();
+        spaceHeld = true;
+        return;
+      }
+
+      // Zoom shortcuts
+      if (event.ctrlKey && (event.key === '+' || event.key === '=' || event.key === 'Add')) {
+        event.preventDefault();
+        zoomLevel = Math.min(ZOOM_MAX, zoomLevel + ZOOM_STEP);
+        this.renderer.draw();
+        return;
+      }
+      if (event.ctrlKey && (event.key === '-' || event.key === 'Subtract')) {
+        event.preventDefault();
+        zoomLevel = Math.max(ZOOM_MIN, zoomLevel - ZOOM_STEP);
+        this.renderer.draw();
+        return;
+      }
+      if (event.ctrlKey && event.key === '0') {
+        event.preventDefault();
+        zoomLevel = 1;
+        panOffset = { x: 0, y: 0 };
+        this.renderer.draw();
+        return;
+      }
+
+
+      // Undo / Redo
+      if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'z') {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'y') {
+        event.preventDefault();
+        redo();
+        return;
+      }
+
       if (event.key === "Escape") { this._escape(); }
-      if (event.key === "Delete") { this._delete(); }
+      if (event.key === "Delete" || event.key === "Backspace") { this._delete(); }
       if (drawMode === null) {
         if (event.key === 's' || event.key === 'S') { simulationStep(); }
       }
       this.renderer.draw();
     });
+
+    document.addEventListener("keyup", event => {
+      if (event.key === ' ') {
+        spaceHeld = false;
+        if (isPanning && panButton === 0) {
+          isPanning = false;
+          panButton = -1;
+        }
+      }
+    });
   }
 
   _delete() {
     if ((drawMode === 'Move') && (componentMove)) {
+       pushUndo();
        this.engine.deleteComponent(componentMove);
+    }
+    if (drawMode === 'Select' || drawMode === null) {
+      if (this.engine.components.some(c => c.selected)) {
+        pushUndo();
+        this.engine.components = this.engine.components.filter(c => !c.selected);
+      }
+      this.renderer.draw();
     }
   }
 
   _escape() {
+    // Revert component being moved to its original position
+    if (componentMove) {
+      componentMove.selected = false;
+      if (componentMove.type === 'Pipe' && pipeMove && positionPipeEndpoint) {
+        if (pipeMove === 'init')
+          componentMove.moveInit(positionPipeEndpoint);
+        else
+          componentMove.moveEnd(positionPipeEndpoint);
+      } else {
+        componentMove.move(this.positionCompInit.x, this.positionCompInit.y);
+      }
+    }
+
+    // Revert group members when escaping a Move-mode group drag
+    if (isMultiDragging && drawMode === 'Move') {
+      for (const offset of multiDragOffset) {
+        const c = offset.comp;
+        if (c.type === 'Pipe') {
+          c.moveInit(offset.origInit);
+          c.moveEnd(offset.origEnd);
+        } else {
+          c.move(offset.origX, offset.origY);
+        }
+      }
+    }
+
+    // Clear multi-select state
+    this.engine.components.forEach(c => c.selected = false);
+    selectionRect = null;
+    isMultiDragging = false;
+    multiDragOffset = [];
+
     drawMode = null;
     componentMove = null;
+    ghostComponent = null;
+    positionPipeEndpoint = null;
     if (editPipe) {
       this.engine.deleteComponent(editPipe)
     }
@@ -3458,12 +3978,24 @@ class UIController {
 
   _getMousePos(e) {
     const r = this.canvas.getBoundingClientRect();
-    const position = {x:e.clientX - r.left, y:e.clientY - r.top};
+    const position = {
+      x: (e.clientX - r.left - panOffset.x) / zoomLevel,
+      y: (e.clientY - r.top  - panOffset.y) / zoomLevel,
+    };
     mousePosition = position;
     return position;
   }
 
   _onDown(e) {
+    // Pan: middle mouse button or Space+left
+    if (e.button === 1 || (e.button === 0 && spaceHeld)) {
+      isPanning = true;
+      panButton = e.button;
+      panStart = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
+      e.preventDefault();
+      return;
+    }
+
     let position = this._getMousePos(e);
 
     // Activate manual valves
@@ -3477,34 +4009,48 @@ class UIController {
 
     // Edit Options component mode
     if (drawMode === 'Options') {
+      let optionsOpened = false;
       for (const comp of this.engine.components) {
         if (comp.near(position)) {
           if (comp.type === 'Text') {
             componentEdit = comp;
-            textPromptAssign('text', 'Text:');
+            textPromptAssign('text', 'promptText');
+            optionsOpened = true;
             break;
           }
           if (comp.type === 'ValveFlow') {
             componentEdit = comp;
-            textPromptAssign('conductance', 'Conductance (10-1000):');
+            textPromptAssign('conductance', 'promptConductance');
+            optionsOpened = true;
             break;
           }
           if (comp.type === 'Compressor') {
             componentEdit = comp;
-            textPromptAssign('pressure', 'Pressure (0.5 - ' + compressorPressure + ' bar):');
+            textPromptAssign('pressure', 'promptPressure');
+            optionsOpened = true;
             break;
           }
           if (['Valve32r', 'Roller'].includes(comp.type)) {
             componentEdit = comp;
-            textPromptAssign('reference', 'Reference:');
+            textPromptAssign('reference', 'promptReference');
+            optionsOpened = true;
             break;
           }
           if (['Cylinder1', 'Cylinder2'].includes(comp.type)) {
             componentEdit = comp;
-            textPromptAssign('massLoad', 'Mass Load (kg):');
+            textPromptAssign('massLoad', 'promptMassLoad');
+            optionsOpened = true;
             break;
           }
         }
+      }
+      if (optionsOpened) {
+        // Deactivate Options tool once the dialog is dismissed
+        textPrompt.addEventListener('close', () => {
+          if (drawMode === 'Options') {
+		    drawMode = null; 
+		  }
+        }, { once: true });
       }
       this.renderer.draw();
     }
@@ -3515,6 +4061,7 @@ class UIController {
         if (comp.near(position)) {
           if (['Manometer', 'ValveNret', 'Valve22m', 'Valve32b',
                'Valve32m', 'Valve32r',  'Valve32p'].includes(comp.type)) {
+            pushUndo();
             comp.flip();
             break;
           }
@@ -3534,6 +4081,7 @@ class UIController {
         }
       }
       if (deleteComp) {
+        pushUndo();
         this.engine.deleteComponent(deleteComp);
       }
       this.renderer.draw();
@@ -3542,6 +4090,10 @@ class UIController {
 
     // Draw component mode
     if (drawMode === 'component') {
+      // Snapshot before adding (skipped on the 2nd pipe click: state already saved)
+      if (componentType !== 'Pipe' || initPos === null) {
+        pushUndo();
+      }
       let comp = null;
       if (componentType === 'Compressor') comp = new Compressor(position);
       if (componentType === 'Manometer') comp = new Manometer(position);
@@ -3566,11 +4118,11 @@ class UIController {
       // Draw Text
       if (componentType === 'Text') {
         componentEdit = comp;
-        textPromptAssign('text', 'Text:');
+        textPromptAssign('text', 'promptText');
       }
       if (['Valve32r', 'Roller'].includes(componentType)) {
         componentEdit = comp;
-        textPromptAssign('reference', 'Reference:');
+        textPromptAssign('reference', 'promptReference');
       }
 
       // Draw pipe
@@ -3597,12 +4149,61 @@ class UIController {
       if (comp !== null) {
         this.engine.addComponent(comp);
       }
+
+      // Recreate ghost for next placement (non-pipe, non-text)
+      if (componentType !== 'Pipe' && componentType !== 'Text') {
+        ghostComponent = createGhostComponent(position);
+      }
+
+      this.renderer.draw();
+    }
+
+    // Select mode — active explicitly OR when no tool is selected
+    if (drawMode === 'Select' || drawMode === null) {
+      let clickedComp = null;
+      for (const comp of this.engine.components) {
+        if (comp.near(position)) { clickedComp = comp; break; }
+      }
+
+      if (clickedComp) {
+        if (e.shiftKey) {
+          clickedComp.selected = !clickedComp.selected;
+        } else {
+          if (!clickedComp.selected) {
+            this.engine.components.forEach(c => c.selected = false);
+            clickedComp.selected = true;
+          }
+        }
+        // Drag is disabled while simulation is running (let valve click work freely)
+        if (!simulationActive) {
+          const selected = this.engine.components.filter(c => c.selected);
+          if (selected.length > 0) {
+            pushUndo();
+            isMultiDragging = true;
+            multiDragOffset = selected.map(c => {
+              if (c.type === 'Pipe') {
+                return { comp: c,
+                  initDx: c.init.x - position.x, initDy: c.init.y - position.y,
+                  endDx:  c.end.x  - position.x, endDy:  c.end.y  - position.y };
+              }
+              return { comp: c, dx: c.x - position.x, dy: c.y - position.y };
+            });
+          }
+        }
+      } else {
+        // Rubber-band: clear selection and start rect
+        if (!e.shiftKey) {
+          this.engine.components.forEach(c => c.selected = false);
+        }
+        selectionRect = { x1: position.x, y1: position.y, x2: position.x, y2: position.y };
+      }
       this.renderer.draw();
     }
 
     // Move component mode
     if (drawMode === 'Move') {
       if (componentMove !== null) {
+        // Place phase: finalise primary component position
         componentMove.selected = false;
         if (pipeMove === 'init')
           componentMove.moveInit(position);
@@ -3615,13 +4216,20 @@ class UIController {
           this.positionMoveInit = {x:0, y:0};
           this.positionCompInit = {x:0, y:0};
         }
+        // Finalise group members (already at correct position via _onMove)
+        isMultiDragging = false;
+        multiDragOffset = [];
         componentMove = null;
         pipeMove = null;
+        positionPipeEndpoint = null;
+        drawMode = null;
       }
       else {
+        // Pick-up phase: find clicked component
         for (const comp of this.engine.components) {
           const near = comp.near(position);
           if (near) {
+            pushUndo();
             componentMove = comp;
             this.positionMoveInit.x = position.x;
             this.positionMoveInit.y = position.y;
@@ -3630,6 +4238,25 @@ class UIController {
             componentMove.selected = true;
             if (componentMove.type === 'Pipe') {
               pipeMove = near;
+              const ep = (near === 'init') ? comp.init : comp.end;
+              positionPipeEndpoint = {x: ep.x, y: ep.y};
+            }
+
+            // If other components are selected, move them as a group
+            const others = this.engine.components.filter(c => c.selected && c !== comp);
+            if (others.length > 0) {
+              isMultiDragging = true;
+              multiDragOffset = others.map(c => {
+                if (c.type === 'Pipe') {
+                  return { comp: c,
+                    initDx: c.init.x - position.x, initDy: c.init.y - position.y,
+                    endDx:  c.end.x  - position.x, endDy:  c.end.y  - position.y,
+                    origInit: { x: c.init.x, y: c.init.y },
+                    origEnd:  { x: c.end.x,  y: c.end.y  } };
+                }
+                return { comp: c, dx: c.x - position.x, dy: c.y - position.y,
+                         origX: c.x, origY: c.y };
+              });
             }
             break;
           }
@@ -3641,10 +4268,48 @@ class UIController {
   }
 
   _onMove(e){
+    // Pan
+    if (isPanning) {
+      panOffset.x = e.clientX - panStart.x;
+      panOffset.y = e.clientY - panStart.y;
+      this.renderer.draw();
+      return;
+    }
+
     let position = this._getMousePos(e);
+
+    // Rubber-band update
+    if (selectionRect) {
+      selectionRect.x2 = position.x;
+      selectionRect.y2 = position.y;
+      this.renderer.draw();
+      return;
+    }
+
+    // Multi-drag for Select/null mode (Move mode handles its own group below)
+    if (isMultiDragging && drawMode !== 'Move') {
+      for (const offset of multiDragOffset) {
+        const c = offset.comp;
+        if (c.type === 'Pipe') {
+          c.moveInit({ x: position.x + offset.initDx, y: position.y + offset.initDy });
+          c.moveEnd({  x: position.x + offset.endDx,  y: position.y + offset.endDy  });
+        } else {
+          c.move(position.x + offset.dx, position.y + offset.dy);
+        }
+      }
+      this.renderer.draw();
+      this.renderer.drawPosition(position);
+      return;
+    }
 
     if ((drawMode === 'component') && (componentType === 'Pipe') && (initPos !== null)) {
       editPipe.moveEnd(position);
+      this.renderer.draw();
+    }
+
+    // Update ghost component position
+    if (ghostComponent && drawMode === 'component') {
+      ghostComponent.move(position.x, position.y);
       this.renderer.draw();
     }
 
@@ -3659,6 +4324,18 @@ class UIController {
         const x = position.x - this.positionMoveInit.x + this.positionCompInit.x;
         const y = position.y - this.positionMoveInit.y + this.positionCompInit.y;
         componentMove.move(x, y);
+        // Move group members together
+        if (isMultiDragging) {
+          for (const offset of multiDragOffset) {
+            const c = offset.comp;
+            if (c.type === 'Pipe') {
+              c.moveInit({ x: position.x + offset.initDx, y: position.y + offset.initDy });
+              c.moveEnd({  x: position.x + offset.endDx,  y: position.y + offset.endDy  });
+            } else {
+              c.move(position.x + offset.dx, position.y + offset.dy);
+            }
+          }
+        }
       }
       this.renderer.draw();
     }
@@ -3666,6 +4343,36 @@ class UIController {
   }
 
   _onUp(e){
+    // End pan
+    if (isPanning && e.button === panButton) {
+      isPanning = false;
+      panButton = -1;
+      return;
+    }
+
+    // End multi-drag
+    if (isMultiDragging) {
+      isMultiDragging = false;
+      multiDragOffset = [];
+      this.renderer.draw();
+      return;
+    }
+
+    // Finalise rubber-band selection
+    if (selectionRect) {
+      const rect = selectionRect;
+      const minX = Math.min(rect.x1, rect.x2);
+      const maxX = Math.max(rect.x1, rect.x2);
+      const minY = Math.min(rect.y1, rect.y2);
+      const maxY = Math.max(rect.y1, rect.y2);
+      for (const comp of this.engine.components) {
+        if (compInRect(comp, minX, minY, maxX, maxY)) {
+          comp.selected = true;
+        }
+      }
+      selectionRect = null;
+      this.renderer.draw();
+    }
   }
 
 }
@@ -3721,17 +4428,124 @@ function swapScreen() {
 
 function aboutWindowShow() {
   const aboutWindow = document.getElementById('aboutWindow');
-  const aboutWindowTitle = document.querySelector('#aboutWindow h2');
+  const aboutWindowTitle = document.getElementById('aboutTitle');
 
   console.log('Picuino Pneumatic Simulator v' + programVersion);
   console.log('Copyright © 2025 Carlos Félix Pardo Martín.');
-  aboutWindowTitle.innerHTML = 'Picuino Pneumatic Simulator v' + programVersion;
+  aboutWindowTitle.textContent = 'Picuino Pneumatic Simulator v' + programVersion;
   aboutWindow.showModal();
 }
 
 function resetEditor() {
+   if (engine.components.length > 0) pushUndo();
    engine.reset();
    renderer.draw();
+}
+
+/* Check if a component falls inside an axis-aligned rect (content space) */
+function compInRect(comp, minX, minY, maxX, maxY) {
+  if (comp.type === 'Pipe') {
+    const inI = comp.init.x >= minX && comp.init.x <= maxX &&
+                comp.init.y >= minY && comp.init.y <= maxY;
+    const inE = comp.end.x >= minX && comp.end.x <= maxX &&
+                comp.end.y >= minY && comp.end.y <= maxY;
+    return inI || inE;
+  }
+  return comp.x >= minX && comp.x <= maxX && comp.y >= minY && comp.y <= maxY;
+}
+
+/* Build a component instance from a serialized data object (no timestamp copy) */
+function createComponentFromData(data) {
+  let comp = null;
+  const pos = { x: data.x || 0, y: data.y || 0 };
+  if (data.type === 'Compressor') comp = new Compressor(pos);
+  else if (data.type === 'Manometer')  comp = new Manometer(pos);
+  else if (data.type === 'Escape')     comp = new Escape(pos);
+  else if (data.type === 'Cylinder1')  comp = new Cylinder1(pos);
+  else if (data.type === 'Cylinder2')  comp = new Cylinder2(pos);
+  else if (data.type === 'Valve22m')   comp = new Valve22m(pos);
+  else if (data.type === 'Valve32b')   comp = new Valve32b(pos);
+  else if (data.type === 'Valve32m')   comp = new Valve32m(pos);
+  else if (data.type === 'Valve32p')   comp = new Valve32p(pos);
+  else if (data.type === 'Valve42m')   comp = new Valve42m(pos);
+  else if (data.type === 'Valve52m')   comp = new Valve52m(pos);
+  else if (data.type === 'Valve52p')   comp = new Valve52p(pos);
+  else if (data.type === 'ValveFlow')  comp = new ValveFlow(pos);
+  else if (data.type === 'ValveOr')    comp = new ValveOr(pos);
+  else if (data.type === 'ValveAnd')   comp = new ValveAnd(pos);
+  else if (data.type === 'Text')       comp = new Text(pos);
+  else if (data.type === 'Valve32r')   comp = new Valve32r(pos);
+  else if (data.type === 'Roller')     comp = new Roller(pos);
+  else if (data.type === 'ValveNret')  comp = new ValveNret(pos);
+  else if (data.type === 'Pipe')       comp = new Pipe(data.init, data.end);
+  if (comp && data.options) {
+    Object.assign(comp.options, data.options);
+    comp.validateOptions();
+  }
+  return comp;
+}
+
+function toggleGrid() {
+  showGrid = !showGrid;
+
+  renderer.draw();
+}
+
+
+/************************ UNDO / REDO ************************/
+
+function snapshotState() {
+  return JSON.stringify(engine.components.map(c => c.serialize()));
+}
+
+/* Save the current state BEFORE a mutation. Skips consecutive duplicates
+   (e.g. a drag that was cancelled with Escape leaves no junk entry). */
+function pushUndo() {
+  const snap = snapshotState();
+  if (undoStack.length > 0 && undoStack[undoStack.length - 1] === snap) return;
+  undoStack.push(snap);
+  if (undoStack.length > undoMaxDepth) undoStack.shift();
+  redoStack = [];
+}
+
+function restoreState(snap) {
+  const components = [];
+  for (const data of JSON.parse(snap)) {
+    const comp = createComponentFromData(data);
+    if (comp) {
+      if (data.stamp) comp.timestamp = data.stamp;
+      components.push(comp);
+    }
+  }
+  engine.components = components;
+  engine.createNodes();
+}
+
+function undo() {
+  ui._escape();               // cancel any in-progress drag/pipe edit first
+  simulationStop();
+  const current = snapshotState();
+  while (undoStack.length > 0 && undoStack[undoStack.length - 1] === current) {
+    undoStack.pop();          // drop entries identical to the current state
+  }
+  if (undoStack.length === 0) return;
+  redoStack.push(current);
+  restoreState(undoStack.pop());
+  renderer.draw();
+}
+
+function redo() {
+  ui._escape();
+  simulationStop();
+  const current = snapshotState();
+  while (redoStack.length > 0 && redoStack[redoStack.length - 1] === current) {
+    redoStack.pop();
+  }
+  if (redoStack.length === 0) return;
+  undoStack.push(current);
+  if (undoStack.length > undoMaxDepth) undoStack.shift();
+  restoreState(redoStack.pop());
+  renderer.draw();
 }
 
 function loadSchema(schematicJSON) {
@@ -3767,7 +4581,7 @@ function loadSchema(schematicJSON) {
     if (comp.type === 'Text')       newcomp = new Text({x:comp.x, y:comp.y});
     if (comp.type === 'Valve32r')   newcomp = new Valve32r({x:comp.x, y:comp.y});
     if (comp.type === 'Roller')     newcomp = new Roller({x:comp.x, y:comp.y});
-    if (comp.type === 'ValveNret')     newcomp = new ValveNret({x:comp.x, y:comp.y});
+    if (comp.type === 'ValveNret')  newcomp = new ValveNret({x:comp.x, y:comp.y});
     if (comp.type === 'Pipe')       newcomp = new Pipe(comp.init, comp.end);
     if (newcomp) {
       Object.assign(newcomp.options, comp.options);
@@ -3789,6 +4603,7 @@ async function openSchema() {
     const schematic = await file.text();
     components = loadSchema(schematic);
     if (components) {
+      pushUndo();
       engine.components = components;
       engine.createNodes();
       renderer.draw();
@@ -3809,6 +4624,7 @@ async function openFile(filename) {
     const schematic = await answer.text();
     components = loadSchema(schematic);
     if (components) {
+      pushUndo();
       engine.components = components;
       engine.createNodes();
       renderer.draw();
@@ -4034,11 +4850,46 @@ function reportErrors(files, jsons) {
 
 /************************ SIMULATION ************************/
 
+function updateSimToolbar() {
+  const iconPlay = document.getElementById('simIconPlay');
+  const iconPause = document.getElementById('simIconPause');
+  const dot = document.getElementById('simDot');
+  const timeEl = document.getElementById('simTime');
+
+  if (simulationActive) {
+    iconPlay.style.display = 'none';
+    iconPause.style.display = '';
+    dot.className = 'sim-dot running';
+  } else {
+    iconPlay.style.display = '';
+    iconPause.style.display = 'none';
+    dot.className = (simulationElapsedMs > 0) ? 'sim-dot paused' : 'sim-dot';
+  }
+
+  const seconds = (simulationElapsedMs / 1000).toFixed(2);
+  timeEl.textContent = seconds + 's';
+}
+
+function simulationPlayPause() {
+  if (simulationActive) {
+    simulationStop();
+  } else {
+    if (engine.nodes.length > 0) {
+      simulationContinue();
+    } else {
+      simulationInit();
+    }
+  }
+}
+
 function simulationInit() {
   drawMode = null;
+  simulationElapsedMs = 0;
+  motionDiagramClear();
   engine.createNodes();
   animationID = requestAnimationFrame(simulationRender);
   simulationActive = true;
+  updateSimToolbar();
 }
 
 function simulationStep() {
@@ -4051,6 +4902,7 @@ function simulationStep() {
   if (animationID === null) {
     animationID = requestAnimationFrame(simulationRender);
   }
+  updateSimToolbar();
 }
 
 function simulationStop() {
@@ -4060,6 +4912,7 @@ function simulationStop() {
     cancelAnimationFrame(animationID);
     animationID = null;
   }
+  updateSimToolbar();
 }
 
 function simulationContinue() {
@@ -4068,15 +4921,19 @@ function simulationContinue() {
   if (animationID === null) {
     animationID = requestAnimationFrame(simulationRender);
   }
+  updateSimToolbar();
 }
 
 function simulationReset() {
   simulationStop();
+  simulationElapsedMs = 0;
+  motionDiagramClear();
   for (const comp of engine.components) {
     comp.reset();
   }
   engine.createNodes();
   renderer.draw();
+  updateSimToolbar();
 }
 
 
@@ -4092,18 +4949,26 @@ function simulationRender(ms) {
   while (simulationTime < ms) {
     engine.render(0.001);
     simulationTime += 1;
+    simulationElapsedMs += 1;
     if (stepTime && stepTime > 0)
       stepTime -= 1;
   }
 
+  // Record cylinder positions for the displacement-step diagram
+  motionDiagramSample();
+
   if (stepTime === 0) {
     stepTime = null;
     animationID = null;
+    updateSimToolbar();
   }
 
   // Aquí solo dibujas el estado actual (una vez por frame)
   if (simulationActive) {
     renderer.draw();
+    // Update time display every frame
+    const timeEl = document.getElementById('simTime');
+    timeEl.textContent = (simulationElapsedMs / 1000).toFixed(2) + 's';
   }
 
   renderTime = 100*(performance.now() - init)/animationTime;
@@ -4120,10 +4985,167 @@ let animationTime = 0;
 let accumulator = 0;
 
 
+/************ MOTION (DISPLACEMENT-STEP) DIAGRAM ************/
+
+function motionCylinders() {
+  return engine.components.filter(c => c.type === 'Cylinder1' || c.type === 'Cylinder2');
+}
+
+function toggleMotionDiagram() {
+  motionVisible = !motionVisible;
+  document.getElementById('motionPanel').style.display = motionVisible ? '' : 'none';
+  const btn = document.getElementById('motionToggleBtn');
+  if (btn) btn.classList.toggle('active', motionVisible);
+  if (motionVisible) motionDiagramDraw();
+}
+
+function motionDiagramClear() {
+  motionData.clear();
+  if (motionVisible) motionDiagramDraw();
+}
+
+/* Record one sample per animation frame for every cylinder */
+function motionDiagramSample() {
+  const t = simulationElapsedMs;
+  const cylinders = motionCylinders();
+
+  // Drop series of components removed from the schematic
+  for (const key of motionData.keys()) {
+    if (!cylinders.includes(key)) motionData.delete(key);
+  }
+
+  for (const cyl of cylinders) {
+    let serie = motionData.get(cyl);
+    if (!serie) {
+      serie = [];
+      motionData.set(cyl, serie);
+    }
+    const span = cyl.position.max - cyl.position.min;
+    const p = (span > 0) ? (cyl.position.actual - cyl.position.min) / span : 0;
+    const last = serie[serie.length - 1];
+    if (last && last.t === t) {
+      last.p = p;
+      continue;
+    }
+    if (last && last.t > t) serie.length = 0;  // elapsed time was reset
+    serie.push({t, p});
+    while (serie.length > 0 && serie[0].t < t - motionKeepMs) {
+      serie.shift();
+    }
+  }
+}
+
+function motionDiagramDraw() {
+  if (!motionVisible) return;
+  const mcanvas = document.getElementById('motionCanvas');
+  const panel = document.getElementById('motionPanel');
+  const cylinders = motionCylinders();
+
+  const rowHeight = 46;
+  const marginTop = 8;
+  const marginBottom = 20;
+  const labelWidth = 40;
+  const marginRight = 12;
+  const widthCss = panel.clientWidth || window.innerWidth;
+  const heightCss = Math.max(1, cylinders.length) * rowHeight + marginTop + marginBottom;
+
+  mcanvas.width = widthCss * canvasScale;
+  mcanvas.height = heightCss * canvasScale;
+  mcanvas.style.height = heightCss + 'px';
+
+  const ctx = mcanvas.getContext('2d');
+  ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, widthCss, heightCss);
+
+  if (cylinders.length === 0) {
+    const message = (translations[globalLang] && translations[globalLang]['motionEmpty'])
+      || 'No cylinders in the schematic.';
+    ctx.fillStyle = '#888';
+    ctx.font = textFont;
+    ctx.textAlign = 'center';
+    ctx.fillText(message, widthCss * 0.5, heightCss * 0.5 + 4);
+    ctx.textAlign = 'left';
+    return;
+  }
+
+  const plotX = labelWidth;
+  const plotWidth = widthCss - labelWidth - marginRight;
+  const tEnd = Math.max(simulationElapsedMs, motionWindowMs);
+  const tStart = tEnd - motionWindowMs;
+
+  // Vertical time grid: one line and label per second
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.lineWidth = 1;
+  for (let s = Math.ceil(tStart / 1000); s * 1000 <= tEnd; s++) {
+    const x = plotX + (s * 1000 - tStart) / motionWindowMs * plotWidth;
+    ctx.strokeStyle = '#e4e4e4';
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop);
+    ctx.lineTo(x, heightCss - marginBottom);
+    ctx.stroke();
+    ctx.fillStyle = '#999';
+    ctx.fillText(s + 's', x, heightCss - 6);
+  }
+  ctx.textAlign = 'left';
+
+  for (let i = 0; i < cylinders.length; i++) {
+    const cyl = cylinders[i];
+    const yTop = marginTop + i * rowHeight + 6;             // extended (+)
+    const yBottom = marginTop + (i + 1) * rowHeight - 12;   // retracted (-)
+    const color = motionColors[i % motionColors.length];
+
+    // Row guide lines
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(plotX, yTop);
+    ctx.lineTo(plotX + plotWidth, yTop);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(plotX, yBottom);
+    ctx.lineTo(plotX + plotWidth, yBottom);
+    ctx.stroke();
+
+    // Labels: cylinder letter, extended (+) and retracted (-)
+    ctx.fillStyle = color;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(String.fromCharCode(65 + i), 8, (yTop + yBottom) * 0.5 + 4);
+    ctx.fillStyle = '#999';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('+', labelWidth - 16, yTop + 4);
+    ctx.fillText('−', labelWidth - 16, yBottom + 4);
+
+    // Position curve
+    const serie = motionData.get(cyl);
+    if (!serie || serie.length === 0) continue;
+    let begin = serie.findIndex(sample => sample.t >= tStart);
+    if (begin === -1) begin = serie.length - 1;
+    if (begin > 0) begin -= 1;   // keep one sample left of the window for continuity
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.6;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (let j = begin; j < serie.length; j++) {
+      const x = plotX + Math.max(0, serie[j].t - tStart) / motionWindowMs * plotWidth;
+      const y = yBottom - serie[j].p * (yBottom - yTop);
+      if (j === begin) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineJoin = 'miter';
+  }
+}
+
+
 /************************ LANGUAGES ************************/
 
 function setLanguage(lang) {
-  if (! ['en', 'es'].includes(lang)) {
+  if (! ['en', 'es', 'pt'].includes(lang)) {
     lang = 'en';
   }
   globalLang = lang;
@@ -4133,6 +5155,14 @@ function setLanguage(lang) {
     const translation = translations[lang][key];
     if (translation) {
       el.textContent = translation;
+    }
+  });
+  const titleElements = document.querySelectorAll("[data-i18n-title]");
+  titleElements.forEach(el => {
+    const key = el.getAttribute("data-i18n-title");
+    const translation = translations[lang][key];
+    if (translation) {
+      el.title = translation;
     }
   });
 }
@@ -4145,6 +5175,11 @@ function enLang() {
 function esLang() {
   globalLang = 'es';
   setLanguage('es');
+}
+
+function ptLang() {
+  globalLang = 'pt';
+  setLanguage('pt');
 }
 
 function navigatorLang() {
@@ -4189,13 +5224,16 @@ function snap(v, gr=grid) {
 }
 
 
-function textPromptAssign(key, message) {
+function textPromptAssign(key, i18nKey) {
+  const message = (translations[globalLang] && translations[globalLang][i18nKey])
+    || i18nKey;
   textPromptDialog(componentEdit.options[key], message);
 
   textPrompt.addEventListener('close', () => {
     if (textPrompt.returnValue !== 'cancel' && componentEdit) {
       const text = textInput.value.trim();
       if (text.length > 0) {
+        pushUndo();
         componentEdit.options[key] = text;
         componentEdit.validateOptions();
       }
@@ -4220,7 +5258,7 @@ function query_read() {
     return [];
   var values = url[1].split('&');
   var vars = [];
-  for(i=0; i<values.length; i++) {
+  for(let i=0; i<values.length; i++) {
     var value = values[i].split('=');
     if (value.length != 2) continue;
     vars.push(value);

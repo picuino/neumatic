@@ -3708,6 +3708,11 @@ class Renderer{
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, logW, logH);
 
+    // World space: pan + zoom
+    ctx.save();
+    ctx.translate(panOffset.x, panOffset.y);
+    ctx.scale(zoomLevel, zoomLevel);
+
     // Background grid
     if (showGrid) {
       const visX1 = -panOffset.x / zoomLevel;
@@ -3731,17 +3736,6 @@ class Renderer{
       ctx.stroke();
       ctx.restore();
     }
-
-    ctx.textAlign = "start";
-    ctx.font = textFont;
-    ctx.fillStyle = '#aaa';
-    ctx.fillText('Picuino Pneumatic Simulator v' + programVersion, 8, 18);
-    this.drawPosition(mousePosition);
-
-    // World space: pan + zoom
-    ctx.save();
-    ctx.translate(panOffset.x, panOffset.y);
-    ctx.scale(zoomLevel, zoomLevel);
 
     for (const comp of this.engine.components) {
       comp.draw(ctx);
@@ -3771,6 +3765,13 @@ class Renderer{
     }
 
     ctx.restore();
+
+    // Picuino Pneumatic Simulator banner
+    ctx.textAlign = "start";
+    ctx.font = textFont;
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Picuino Pneumatic Simulator v' + programVersion, 8, 18);
+
 
     // Screen-space overlays
     this.drawPosition(mousePosition);
